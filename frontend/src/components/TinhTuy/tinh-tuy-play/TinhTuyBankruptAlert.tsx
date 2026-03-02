@@ -25,15 +25,17 @@ export const TinhTuyBankruptAlert: React.FC = () => {
   return (
     <Dialog
       open
-      onClose={clearBankruptAlert}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearBankruptAlert(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
       PaperProps={{
+        onClick: clearBankruptAlert,
         sx: {
           borderRadius: 3,
           borderTop: `4px solid #e74c3c`,
           overflow: 'visible',
+          cursor: 'pointer',
         },
       }}
       slotProps={{

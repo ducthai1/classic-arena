@@ -31,11 +31,11 @@ export const TinhTuyIslandAlert: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearIslandAlert}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearIslandAlert(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
-      PaperProps={{ sx: { borderRadius: 3, borderTop: '4px solid #e67e22' } }}
+      PaperProps={{ onClick: clearIslandAlert, sx: { borderRadius: 3, borderTop: '4px solid #e67e22', cursor: 'pointer' } }}
     >
       <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', pb: 0.5 }}>
         🏝️ {isMe

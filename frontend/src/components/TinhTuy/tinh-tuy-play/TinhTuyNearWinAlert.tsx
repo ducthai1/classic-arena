@@ -30,15 +30,17 @@ export const TinhTuyNearWinAlert: React.FC = () => {
   return (
     <Dialog
       open
-      onClose={clearNearWinWarning}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearNearWinWarning(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
       PaperProps={{
+        onClick: clearNearWinWarning,
         sx: {
           borderRadius: 3,
           borderTop: '4px solid #e74c3c',
           overflow: 'visible',
+          cursor: 'pointer',
         },
       }}
       slotProps={{

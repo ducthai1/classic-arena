@@ -24,11 +24,11 @@ export const TinhTuyTaxAlert: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearTaxAlert}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearTaxAlert(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
-      PaperProps={{ sx: { borderRadius: 3, borderTop: '4px solid #e74c3c' } }}
+      PaperProps={{ onClick: clearTaxAlert, sx: { borderRadius: 3, borderTop: '4px solid #e74c3c', cursor: 'pointer' } }}
     >
       <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', pb: 0.5 }}>
         <Box

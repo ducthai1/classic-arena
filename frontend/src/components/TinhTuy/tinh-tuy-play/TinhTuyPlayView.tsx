@@ -40,6 +40,7 @@ import { TinhTuyAttackPropertyModal } from './TinhTuyAttackPropertyModal';
 import { TinhTuyForcedTradeModal } from './TinhTuyForcedTradeModal';
 import { TinhTuyRentFreezeModal } from './TinhTuyRentFreezeModal';
 import { TinhTuyAttackAlert } from './TinhTuyAttackAlert';
+import { TinhTuyForcedTradeAlert } from './TinhTuyForcedTradeAlert';
 import { TinhTuyBuybackModal } from './TinhTuyBuybackModal';
 import { TinhTuyAutoSoldAlert } from './TinhTuyAutoSoldAlert';
 import { TinhTuyNearWinAlert } from './TinhTuyNearWinAlert';
@@ -443,6 +444,7 @@ export const TinhTuyPlayView: React.FC = () => {
       <TinhTuyForcedTradeModal />
       <TinhTuyRentFreezeModal />
       <TinhTuyAttackAlert />
+      <TinhTuyForcedTradeAlert />
       <TinhTuyBuybackModal />
       <TinhTuyAutoSoldAlert />
       <TinhTuyNearWinAlert />

@@ -217,7 +217,7 @@ export const TinhTuyDice3D: React.FC = () => {
       )}
 
       {/* Status text */}
-      {!canRoll && !isRolling && !(state.turnPhase === 'AWAITING_TRAVEL' && isMyTurn) && !(state.turnPhase === 'AWAITING_FESTIVAL' && isMyTurn) && !(state.turnPhase === 'AWAITING_CARD_DESTINATION' && isMyTurn) && !(state.turnPhase === 'AWAITING_BUILD' && isMyTurn) && (
+      {!canRoll && !isRolling && !(state.turnPhase === 'AWAITING_TRAVEL' && isMyTurn) && !(state.turnPhase === 'AWAITING_FESTIVAL' && isMyTurn) && !(state.turnPhase === 'AWAITING_CARD_DESTINATION' && isMyTurn) && !(state.turnPhase === 'AWAITING_BUILD' && isMyTurn) && !(state.turnPhase === 'AWAITING_BUYBACK' && isMyTurn) && !(state.turnPhase === 'AWAITING_SELL' && isMyTurn) && (
         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
           {isMyTurn
             ? state.turnPhase === 'AWAITING_ACTION'

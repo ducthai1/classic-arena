@@ -33,14 +33,16 @@ export const TinhTuyGoBonusModal: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearGoBonus}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearGoBonus(); }}
       maxWidth="sm"
       fullWidth
       TransitionProps={{ timeout: 400 }}
       PaperProps={{
+        onClick: clearGoBonus,
         sx: {
           borderRadius: 3, borderTop: `4px solid ${accentColor}`,
           animation: 'tt-travel-pulse 1.5s ease-in-out infinite',
+          cursor: 'pointer',
         },
       }}
     >

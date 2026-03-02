@@ -266,6 +266,8 @@ export interface TinhTuyState {
   attackPrompt: { attackType: 'DESTROY_PROPERTY' | 'DOWNGRADE_BUILDING'; targetCells: number[] } | null;
   /** Attack result alert — shown to all players when property is attacked */
   attackAlert: { victimSlot: number; cellIndex: number; result: 'destroyed' | 'downgraded' | 'demolished' | 'shielded'; prevHouses: number; prevHotel: boolean; newHouses: number; newHotel: boolean } | null;
+  /** Forced trade result alert — shown to all players when properties are swapped */
+  forcedTradeAlert: { traderSlot: number; traderCell: number; victimSlot: number; victimCell: number } | null;
   /** Buyback prompt — shown after paying rent on opponent's property */
   buybackPrompt: { slot: number; ownerSlot: number; cellIndex: number; price: number; canAfford: boolean } | null;
   /** Queued buyback prompt — applied after animations settle */
@@ -399,6 +401,7 @@ export type TinhTuyAction =
   | { type: 'ATTACK_PROPERTY_PROMPT'; payload: { attackType: 'DESTROY_PROPERTY' | 'DOWNGRADE_BUILDING'; targetCells: number[] } }
   | { type: 'PROPERTY_ATTACKED'; payload: { victimSlot: number; cellIndex: number; result: 'destroyed' | 'downgraded' | 'demolished' | 'shielded'; prevHouses: number; prevHotel: boolean; newHouses: number; newHotel: boolean; festival?: { slot: number; cellIndex: number; multiplier: number } | null } }
   | { type: 'CLEAR_ATTACK_ALERT' }
+  | { type: 'CLEAR_FORCED_TRADE_ALERT' }
   | { type: 'BUYBACK_PROMPT'; payload: { slot: number; ownerSlot: number; cellIndex: number; price: number; canAfford: boolean } }
   | { type: 'APPLY_QUEUED_BUYBACK' }
   | { type: 'CLEAR_BUYBACK_PROMPT' }
@@ -412,7 +415,7 @@ export type TinhTuyAction =
   | { type: 'CLEAR_AUTO_SOLD' }
   | { type: 'CARD_DESTINATION_PROMPT'; payload: { slot: number } }
   | { type: 'FORCED_TRADE_PROMPT'; payload: { slot: number; myCells: number[]; opponentCells: number[] } }
-  | { type: 'FORCED_TRADE_DONE'; payload: { traderSlot: number; traderCell: number; victimSlot: number; victimCell: number; festival?: { slot: number; cellIndex: number; multiplier: number } | null } }
+  | { type: 'FORCED_TRADE_DONE'; payload: { traderSlot: number; traderCell: number; victimSlot: number; victimCell: number; skipped?: boolean; festival?: { slot: number; cellIndex: number; multiplier: number } | null } }
   | { type: 'RENT_FREEZE_PROMPT'; payload: { slot: number; targetCells: number[] } }
   | { type: 'RENT_FROZEN'; payload: { cellIndex: number; turnsRemaining: number; frozenProperties: Array<{ cellIndex: number; turnsRemaining: number }> } }
   | { type: 'NEAR_WIN_WARNING'; payload: { slot: number; type: string; missingCells?: number[]; completedGroups?: number; edgeIndex?: number } }

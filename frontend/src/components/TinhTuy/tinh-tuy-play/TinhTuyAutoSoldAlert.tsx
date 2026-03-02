@@ -22,11 +22,11 @@ export const TinhTuyAutoSoldAlert: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearAutoSold}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearAutoSold(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
-      PaperProps={{ sx: { borderRadius: 3, borderTop: `4px solid ${PLAYER_COLORS[alert.slot] || '#e74c3c'}` } }}
+      PaperProps={{ onClick: clearAutoSold, sx: { borderRadius: 3, borderTop: `4px solid ${PLAYER_COLORS[alert.slot] || '#e74c3c'}`, cursor: 'pointer' } }}
     >
       <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', pb: 0.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 800, color: '#e74c3c' }}>

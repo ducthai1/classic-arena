@@ -176,7 +176,7 @@ export const TinhTuyCardModal: React.FC = () => {
                   <Typography variant="body2" sx={{ color: '#c0392b', fontWeight: 800, fontSize: '1.1rem', mb: 0.5 }}>
                     🏴‍☠️ {t('tinhTuy.cards.stolenResult' as any)}
                   </Typography>
-                  {/* Property name + building level — prominent */}
+                  {/* Property name */}
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1,
                     p: 1, borderRadius: 1.5, bgcolor: 'rgba(231, 76, 60, 0.08)',
                   }}>
@@ -215,6 +215,18 @@ export const TinhTuyCardModal: React.FC = () => {
                       -📍 {t('tinhTuy.cards.stolenLost' as any)}
                     </Typography>
                   </Box>
+                </Box>
+              )}
+              {/* ─── Steal no valid targets ─── */}
+              {card.id === 'ch-18' && !extra?.stolenCellIndex && (
+                <Box sx={{
+                  mt: 2, px: 2, py: 1.5, borderRadius: 2,
+                  bgcolor: 'rgba(149, 165, 166, 0.15)',
+                  border: '2px solid rgba(149, 165, 166, 0.4)',
+                }}>
+                  <Typography variant="body2" sx={{ color: '#7f8c8d', fontWeight: 700, fontSize: '1rem' }}>
+                    😴 {t('tinhTuy.cards.noStealTarget' as any)}
+                  </Typography>
                 </Box>
               )}
 

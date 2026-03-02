@@ -62,15 +62,17 @@ export const TinhTuyAttackAlert: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearAttackAlert}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearAttackAlert(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
       PaperProps={{
+        onClick: clearAttackAlert,
         sx: {
           borderRadius: 3, overflow: 'hidden',
           borderTop: `4px solid ${accentColor}`,
           animation: 'tt-travel-pulse 1.5s ease-in-out infinite',
+          cursor: 'pointer',
         },
       }}
     >

@@ -32,15 +32,17 @@ export const TinhTuyMonopolyAlert: React.FC = () => {
   return (
     <Dialog
       open
-      onClose={clearMonopolyAlert}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearMonopolyAlert(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
       PaperProps={{
+        onClick: clearMonopolyAlert,
         sx: {
           borderRadius: 3,
           borderTop: `4px solid ${groupColor}`,
           overflow: 'visible',
+          cursor: 'pointer',
         },
       }}
       slotProps={{

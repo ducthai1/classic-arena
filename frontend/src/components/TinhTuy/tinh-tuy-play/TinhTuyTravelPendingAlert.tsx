@@ -27,11 +27,11 @@ export const TinhTuyTravelPendingAlert: React.FC = () => {
   return (
     <Dialog
       open={true}
-      onClose={clearTravelPending}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') clearTravelPending(); }}
       maxWidth="xs"
       fullWidth
       TransitionProps={{ timeout: 400 }}
-      PaperProps={{ sx: { borderRadius: 3, borderTop: '4px solid #2ecc71' } }}
+      PaperProps={{ onClick: clearTravelPending, sx: { borderRadius: 3, borderTop: '4px solid #2ecc71', cursor: 'pointer' } }}
     >
       <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', pb: 0.5 }}>
         <FlightTakeoffIcon sx={{ fontSize: 36, color: '#2ecc71', mb: 0.5 }} />

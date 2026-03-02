@@ -583,22 +583,20 @@ function applyCardEffect(game: ITinhTuyGame, player: ITinhTuyPlayer, effect: Car
     }
   }
 
-  // Steal property — transfer ownership AND buildings (houses/hotel preserved)
+  // Steal property — transfer ownership + buildings (houses/hotel preserved)
   if (effect.stolenProperty) {
     const victim = game.players.find(p => p.slot === effect.stolenProperty!.fromSlot);
     const thief = game.players.find(p => p.slot === effect.stolenProperty!.toSlot);
     if (victim && thief) {
       const cellIdx = effect.stolenProperty.cellIndex;
       const key = String(cellIdx);
-      // Transfer houses/hotel from victim to thief
+      // Transfer houses from victim to thief
       const houses = victim.houses[key] || 0;
-      const hotel = !!victim.hotels[key];
       victim.properties = victim.properties.filter(idx => idx !== cellIdx);
       delete victim.houses[key];
       delete victim.hotels[key];
       thief.properties.push(cellIdx);
       if (houses > 0) thief.houses[key] = houses;
-      if (hotel) thief.hotels[key] = true;
       // Transfer festival to new owner if stolen property hosted it
       if (game.festival && game.festival.cellIndex === cellIdx && game.festival.slot === effect.stolenProperty.fromSlot) {
         game.festival = { ...game.festival, slot: effect.stolenProperty.toSlot };

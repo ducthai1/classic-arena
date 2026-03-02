@@ -121,6 +121,7 @@ const initialState: TinhTuyState = {
   queuedGameFinished: null,
   attackPrompt: null,
   attackAlert: null,
+  forcedTradeAlert: null,
   buybackPrompt: null,
   queuedBuybackPrompt: null,
   goBonusPrompt: null,
@@ -285,7 +286,7 @@ function tinhTuyReducer(state: TinhTuyState, action: TinhTuyAction): TinhTuyStat
         frozenProperties: g.frozenProperties || [],
         lastDiceResult: null, diceAnimating: false, pendingAction: null, winner: null,
         pendingCardEffect: null, pendingSwapAnim: null, gameEndReason: null,
-        queuedBankruptAlert: null, bankruptAlert: null, monopolyAlert: null, queuedGameFinished: null, attackPrompt: null, attackAlert: null, buybackPrompt: null, queuedBuybackPrompt: null,
+        queuedBankruptAlert: null, bankruptAlert: null, monopolyAlert: null, queuedGameFinished: null, attackPrompt: null, attackAlert: null, forcedTradeAlert: null, buybackPrompt: null, queuedBuybackPrompt: null,
       };
     }
 
@@ -648,8 +649,15 @@ function tinhTuyReducer(state: TinhTuyState, action: TinhTuyAction): TinhTuyStat
         });
       }
       const ftFestival = action.payload.festival !== undefined ? action.payload.festival : state.festival;
-      return { ...state, players: ftPlayers, forcedTradePrompt: null, festival: ftFestival };
+      // Show alert to all players (skip if trade was skipped)
+      const ftAlert = (!action.payload.skipped && traderSlot && victimSlot)
+        ? { traderSlot, traderCell, victimSlot, victimCell }
+        : null;
+      return { ...state, players: ftPlayers, forcedTradePrompt: null, festival: ftFestival, forcedTradeAlert: ftAlert };
     }
+
+    case 'CLEAR_FORCED_TRADE_ALERT':
+      return { ...state, forcedTradeAlert: null };
 
     case 'PROPERTY_BOUGHT': {
       const dpBuy = freezePoints(state);
@@ -1120,40 +1128,32 @@ function tinhTuyReducer(state: TinhTuyState, action: TinhTuyAction): TinhTuyStat
             p.slot === eff.slot ? { ...p, skipNextTurn: true } : p
           );
         }
-        // Swap: defer actual position swap via pendingSwapAnim (fires 1s after card modal closes).
-        // Don't restore old positions — keep players where they are (drawer at card cell, target at their cell)
-        // and let SWAP_ANIM_DONE teleport both to final positions in one clean step.
+        // Swap: apply positions immediately so queued events (rent, buyback, action) aren't blocked.
+        // pendingSwapAnim still triggers the visual CSS animation, but SWAP_ANIM_DONE only clears the flag.
         if (eff.swapPosition) {
           const sw = eff.swapPosition;
           clearSwapAnim = { slot: sw.slot, targetSlot: sw.targetSlot, myNewPos: sw.myNewPos, targetNewPos: sw.targetNewPos };
+          clearPlayers = clearPlayers.map(p => {
+            if (p.slot === sw.slot) return { ...p, position: sw.myNewPos };
+            if (p.slot === sw.targetSlot) return { ...p, position: sw.targetNewPos };
+            return p;
+          });
         }
         if (eff.stolenProperty) {
           const st = eff.stolenProperty;
           const key = String(st.cellIndex);
+          // Read victim's buildings BEFORE dedupeProperty removes them
+          const victimP = clearPlayers.find(pp => pp.slot === st.fromSlot);
+          const transferHouses = victimP ? (victimP.houses[key] || 0) : 0;
           // Defensive: remove property from ALL other players first
           clearPlayers = dedupeProperty(clearPlayers, st.cellIndex, st.toSlot);
           clearPlayers = clearPlayers.map(p => {
-            if (p.slot === st.fromSlot) {
-              // Remove property + buildings from victim
-              const { [key]: _h, ...restHouses } = p.houses;
-              const { [key]: _ht, ...restHotels } = p.hotels;
-              return {
-                ...p,
-                properties: p.properties.filter(idx => idx !== st.cellIndex),
-                houses: restHouses,
-                hotels: restHotels,
-              };
-            }
             if (p.slot === st.toSlot) {
-              // Transfer property + buildings to thief
-              const victimP = clearPlayers.find(pp => pp.slot === st.fromSlot);
-              const transferHouses = victimP ? (victimP.houses[key] || 0) : 0;
-              const transferHotel = victimP ? !!victimP.hotels[key] : false;
+              // Transfer property + houses to thief
               return {
                 ...p,
                 properties: [...p.properties.filter(idx => idx !== st.cellIndex), st.cellIndex],
                 houses: transferHouses > 0 ? { ...p.houses, [key]: transferHouses } : p.houses,
-                hotels: transferHotel ? { ...p.hotels, [key]: true } : p.hotels,
               };
             }
             return p;
@@ -1204,14 +1204,9 @@ function tinhTuyReducer(state: TinhTuyState, action: TinhTuyAction): TinhTuyStat
     }
 
     case 'SWAP_ANIM_DONE': {
+      // Positions already applied in CLEAR_CARD — just clear the visual animation flag
       if (!state.pendingSwapAnim) return state;
-      const sw = state.pendingSwapAnim;
-      const updated = state.players.map(p => {
-        if (p.slot === sw.slot) return { ...p, position: sw.myNewPos };
-        if (p.slot === sw.targetSlot) return { ...p, position: sw.targetNewPos };
-        return p;
-      });
-      return { ...state, players: updated, pendingSwapAnim: null };
+      return { ...state, pendingSwapAnim: null };
     }
 
     case 'HOUSE_BUILT': {
@@ -1602,6 +1597,7 @@ interface TinhTuyContextValue {
   chooseBuyBlockTarget: (targetSlot: number) => void;
   chooseEminentDomain: (cellIndex: number) => void;
   clearAttackAlert: () => void;
+  clearForcedTradeAlert: () => void;
   clearAutoSold: () => void;
   clearGoBonus: () => void;
   clearBankruptAlert: () => void;
@@ -1768,7 +1764,10 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     const handleAttackPropertyPrompt = (data: any) => {
-      dispatch({ type: 'ATTACK_PROPERTY_PROMPT', payload: data });
+      // Only dispatch for the attacker — opponents keep seeing the card modal (auto-dismiss)
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'ATTACK_PROPERTY_PROMPT', payload: data });
+      }
     };
 
     const handlePropertyAttacked = (data: any) => {
@@ -1796,23 +1795,31 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
       dispatch({ type: 'TRAVEL_PROMPT', payload: data });
     };
     const handleCardDestinationPrompt = (data: any) => {
-      dispatch({ type: 'CARD_DESTINATION_PROMPT', payload: data });
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'CARD_DESTINATION_PROMPT', payload: data });
+      }
     };
     const handleForcedTradePrompt = (data: any) => {
-      dispatch({ type: 'FORCED_TRADE_PROMPT', payload: data });
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'FORCED_TRADE_PROMPT', payload: data });
+      }
     };
     const handleForcedTradeDone = (data: any) => {
       dispatch({ type: 'FORCED_TRADE_DONE', payload: data });
     };
     const handleRentFreezePrompt = (data: any) => {
-      dispatch({ type: 'RENT_FREEZE_PROMPT', payload: data });
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'RENT_FREEZE_PROMPT', payload: data });
+      }
     };
     const handleRentFrozen = (data: any) => {
       dispatch({ type: 'RENT_FROZEN', payload: data });
     };
 
     const handleBuyBlockPrompt = (data: any) => {
-      dispatch({ type: 'BUY_BLOCK_PROMPT', payload: data });
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'BUY_BLOCK_PROMPT', payload: data });
+      }
     };
     const handleBuyBlocked = (data: any) => {
       // Update target's buyBlockedTurns locally
@@ -1824,7 +1831,9 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
       dispatch({ type: 'CLEAR_BUY_BLOCK_PROMPT' });
     };
     const handleEminentDomainPrompt = (data: any) => {
-      dispatch({ type: 'EMINENT_DOMAIN_PROMPT', payload: data });
+      if (data.slot === stateRef.current.mySlot) {
+        dispatch({ type: 'EMINENT_DOMAIN_PROMPT', payload: data });
+      }
     };
     const handleEminentDomainApplied = (data: any) => {
       // Transfer property from victim to buyer
@@ -2462,6 +2471,10 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     dispatch({ type: 'CLEAR_ATTACK_ALERT' });
   }, []);
 
+  const clearForcedTradeAlert = useCallback(() => {
+    dispatch({ type: 'CLEAR_FORCED_TRADE_ALERT' });
+  }, []);
+
   const clearAutoSold = useCallback(() => {
     dispatch({ type: 'CLEAR_AUTO_SOLD' });
   }, []);
@@ -2759,6 +2772,14 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     return () => clearTimeout(timer);
   }, [attackAlertVisible]);
 
+  // Forced trade alert auto-dismiss (safety net — component has its own timer too).
+  const forcedTradeAlertVisible = !!state.forcedTradeAlert && !state.drawnCard && !state.pendingMove && !state.animatingToken;
+  useEffect(() => {
+    if (!forcedTradeAlertVisible) return;
+    const timer = setTimeout(() => dispatch({ type: 'CLEAR_FORCED_TRADE_ALERT' }), 6000);
+    return () => clearTimeout(timer);
+  }, [forcedTradeAlertVisible]);
+
   // Auto-sold alert auto-dismiss after 10s
   useEffect(() => {
     if (!state.autoSoldAlert) return;
@@ -2801,9 +2822,9 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Gate: dice animation + card modal + movement animation must all finish before queued visual effects fire
   const isAnimBusy = !!(state.diceAnimating || state.drawnCard || state.pendingMove || state.animatingToken || state.pendingSwapAnim);
-  // Separate gate for turn change: excludes diceAnimating since it's purely visual
-  // and its timer can fail (tab backgrounded, component re-mount), causing permanent stuck state
-  const isTurnChangeBusy = !!(state.drawnCard || state.pendingMove || state.animatingToken || state.pendingSwapAnim);
+  // Separate gate for turn change: excludes diceAnimating (purely visual, timer can fail)
+  // and pendingSwapAnim (positions applied immediately in CLEAR_CARD, animation is visual-only)
+  const isTurnChangeBusy = !!(state.drawnCard || state.pendingMove || state.animatingToken);
 
   // Safety watchdog: force-clear stuck animation state after timeout.
   // Uses granular key so timer RESETS when busy composition changes (dice→movement→card).
@@ -2835,10 +2856,10 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     return () => clearTimeout(timer);
   }, [state.diceAnimating]);
 
-  // Apply swap positions after brief delay (lets card modal close, shows swap visually)
+  // Clear swap animation flag after brief visual delay (positions already applied in CLEAR_CARD)
   useEffect(() => {
     if (!state.pendingSwapAnim) return;
-    const timer = setTimeout(() => dispatch({ type: 'SWAP_ANIM_DONE' }), 1000);
+    const timer = setTimeout(() => dispatch({ type: 'SWAP_ANIM_DONE' }), 400);
     return () => clearTimeout(timer);
   }, [state.pendingSwapAnim]);
 
@@ -3079,7 +3100,7 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     refreshRooms, setView, updateRoom,
     buildHouse, buildHotel, escapeIsland, sendChat, sendReaction, dismissReaction, updateGuestName,
     clearCard, clearRentAlert, clearTaxAlert, clearIslandAlert, clearTravelPending,
-    travelTo, applyFestival, skipBuild, sellBuildings, chooseFreeHouse, chooseFreeHotel, attackPropertyChoose, chooseDestination, forcedTradeChoose, rentFreezeChoose, chooseBuyBlockTarget, chooseEminentDomain, clearAttackAlert, clearAutoSold, clearGoBonus, clearBankruptAlert, clearMonopolyAlert, clearNearWinWarning, buybackProperty, selectCharacter, playAgain,
+    travelTo, applyFestival, skipBuild, sellBuildings, chooseFreeHouse, chooseFreeHotel, attackPropertyChoose, chooseDestination, forcedTradeChoose, rentFreezeChoose, chooseBuyBlockTarget, chooseEminentDomain, clearAttackAlert, clearForcedTradeAlert, clearAutoSold, clearGoBonus, clearBankruptAlert, clearMonopolyAlert, clearNearWinWarning, buybackProperty, selectCharacter, playAgain,
     negotiateSend, negotiateRespond, negotiateCancel, openNegotiateWizard, closeNegotiateWizard,
     activateAbility, owlPick, horseAdjustPick, shibaReroll, shibaRerollPick, rabbitBonusPick, clearAbilityModal, clearAbilityUsedAlert, clearChickenDrain, clearSlothAutoBuild, clearFoxSwapAlert,
   }), [
@@ -3088,7 +3109,7 @@ export const TinhTuyProvider: React.FC<{ children: ReactNode }> = ({ children })
     refreshRooms, setView, updateRoom,
     buildHouse, buildHotel, escapeIsland, sendChat, sendReaction, dismissReaction, updateGuestName,
     clearCard, clearRentAlert, clearTaxAlert, clearIslandAlert, clearTravelPending,
-    travelTo, applyFestival, skipBuild, sellBuildings, chooseFreeHouse, chooseFreeHotel, attackPropertyChoose, chooseDestination, forcedTradeChoose, rentFreezeChoose, chooseBuyBlockTarget, chooseEminentDomain, clearAttackAlert, clearAutoSold, clearGoBonus, clearBankruptAlert, clearMonopolyAlert, clearNearWinWarning, buybackProperty, selectCharacter, playAgain,
+    travelTo, applyFestival, skipBuild, sellBuildings, chooseFreeHouse, chooseFreeHotel, attackPropertyChoose, chooseDestination, forcedTradeChoose, rentFreezeChoose, chooseBuyBlockTarget, chooseEminentDomain, clearAttackAlert, clearForcedTradeAlert, clearAutoSold, clearGoBonus, clearBankruptAlert, clearMonopolyAlert, clearNearWinWarning, buybackProperty, selectCharacter, playAgain,
     negotiateSend, negotiateRespond, negotiateCancel, openNegotiateWizard, closeNegotiateWizard,
     activateAbility, owlPick, horseAdjustPick, shibaReroll, shibaRerollPick, rabbitBonusPick, clearAbilityModal, clearAbilityUsedAlert, clearChickenDrain, clearSlothAutoBuild, clearFoxSwapAlert,
   ]);
