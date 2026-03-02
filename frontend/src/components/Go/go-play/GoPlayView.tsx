@@ -1,5 +1,7 @@
 /**
  * GoPlayView — Main game layout: board + panels + controls.
+ * Desktop: 3-column (left panel | board | right panel), fullscreen (no sidebar).
+ * Mobile: vertical stack, spacious spacing.
  */
 import React, { useState, useEffect } from 'react';
 import { Box, Stack, Typography, Button, IconButton, Tooltip, useTheme, useMediaQuery } from '@mui/material';
@@ -15,6 +17,15 @@ import GoControls from './GoControls';
 import GoScoringPanel from './GoScoringPanel';
 import GoWinnerModal from './GoWinnerModal';
 import GoHelpDialog from './GoHelpDialog';
+
+/** Shared button sx for Help/Leave in left panel */
+const panelBtnSx = {
+  py: 1,
+  fontWeight: 600,
+  textTransform: 'none' as const,
+  fontSize: '0.85rem',
+  borderRadius: 2,
+};
 
 const GoPlayView: React.FC = () => {
   const {
@@ -104,10 +115,12 @@ const GoPlayView: React.FC = () => {
 
   const TurnIndicator = (
     <Typography
-      variant="caption"
+      variant="body2"
+      fontWeight={600}
       color={isMyTurn ? 'success.main' : 'text.secondary'}
       textAlign="center"
       display="block"
+      sx={{ mb: 1 }}
     >
       {phase === 'scoring'
         ? t('go.scoringPhase')
@@ -118,6 +131,7 @@ const GoPlayView: React.FC = () => {
     </Typography>
   );
 
+  /* ─── MOBILE LAYOUT ─────────────────────────────────── */
   const mobileLayout = (
     <Box sx={{ maxWidth: 520, mx: 'auto', p: { xs: 1.5, sm: 2 } }}>
       <Stack spacing={2}>
@@ -131,7 +145,7 @@ const GoPlayView: React.FC = () => {
           />
         )}
 
-        {/* Board */}
+        {/* Turn indicator + Board */}
         {TurnIndicator}
         {BoardComponent}
 
@@ -163,15 +177,33 @@ const GoPlayView: React.FC = () => {
         )}
 
         {/* Help + Leave row */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center' }}>
           <Tooltip title={t('go.help.title' as any)}>
-            <IconButton onClick={() => setShowHelp(true)} size="small" sx={{ color: '#2c3e50' }}>
-              <MenuBookIcon sx={{ fontSize: 20 }} />
+            <IconButton
+              onClick={() => setShowHelp(true)}
+              sx={{
+                color: '#2c3e50',
+                border: '1.5px solid rgba(44,62,80,0.25)',
+                borderRadius: 2,
+                p: 1,
+                '&:hover': { bgcolor: 'rgba(44,62,80,0.06)', borderColor: '#2c3e50' },
+              }}
+            >
+              <MenuBookIcon sx={{ fontSize: 22 }} />
             </IconButton>
           </Tooltip>
           <Tooltip title={t('go.leaveRoom' as any)}>
-            <IconButton onClick={() => setShowLeaveConfirm(true)} size="small" sx={{ color: '#e74c3c' }}>
-              <ExitToAppIcon sx={{ fontSize: 20 }} />
+            <IconButton
+              onClick={() => setShowLeaveConfirm(true)}
+              sx={{
+                color: '#e74c3c',
+                border: '1.5px solid rgba(231,76,60,0.3)',
+                borderRadius: 2,
+                p: 1,
+                '&:hover': { bgcolor: 'rgba(231,76,60,0.06)', borderColor: '#c0392b' },
+              }}
+            >
+              <ExitToAppIcon sx={{ fontSize: 22 }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -189,95 +221,106 @@ const GoPlayView: React.FC = () => {
     </Box>
   );
 
+  /* ─── DESKTOP LAYOUT ────────────────────────────────── */
   const desktopLayout = (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 3,
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          flexWrap: 'nowrap',
-        }}
-      >
-        {/* Left panel: player 1 + controls + help/leave */}
-        <Box sx={{ width: 240, flexShrink: 0 }}>
-          <Stack spacing={2}>
-            {player1 && (
-              <GoPlayerPanel
-                player={player1}
-                isCurrentTurn={player1.color === currentColor && phase === 'play'}
-                timerEnabled={timerEnabled}
-                byoyomiTime={byoyomiTime}
-              />
-            )}
-            {phase === 'play' && (
-              <GoControls
-                isMyTurn={isMyTurn}
-                phase={phase}
-                moveCount={moveCount}
-                pendingUndo={pendingUndo}
-                mySlot={mySlot}
-                onPass={pass}
-                onResign={resign}
-                onRequestUndo={requestUndo}
-                onApproveUndo={approveUndo}
-                onRejectUndo={rejectUndo}
-              />
-            )}
-            {phase === 'scoring' && (
-              <GoScoringPanel
-                score={score}
-                players={players}
-                mySlot={mySlot}
-                onAgree={agreeScoring}
-                onReject={rejectScoring}
-              />
-            )}
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<MenuBookIcon />}
-              onClick={() => setShowHelp(true)}
-              sx={{
-                borderColor: 'rgba(44,62,80,0.3)', color: '#2c3e50', fontWeight: 600,
-                '&:hover': { borderColor: '#2c3e50', bgcolor: 'rgba(44,62,80,0.06)' },
-              }}
-            >
-              {t('go.help.title' as any)}
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<ExitToAppIcon />}
-              onClick={() => setShowLeaveConfirm(true)}
-              sx={{
-                borderColor: 'rgba(231,76,60,0.4)', color: '#e74c3c', fontWeight: 600,
-                '&:hover': { borderColor: '#c0392b', bgcolor: 'rgba(231,76,60,0.08)' },
-              }}
-            >
-              {t('go.leaveRoom' as any)}
-            </Button>
-          </Stack>
-        </Box>
-
-        {/* Center: board */}
-        <Box sx={{ flex: '1 1 auto', maxWidth: 700, minWidth: 0 }}>
-          {TurnIndicator}
-          {BoardComponent}
-        </Box>
-
-        {/* Right panel: player 2 */}
-        <Box sx={{ width: 240, flexShrink: 0 }}>
-          {player2 && (
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 4,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        flexWrap: 'nowrap',
+        p: 3,
+        minHeight: '100vh',
+      }}
+    >
+      {/* Left panel: my player + controls + utility buttons */}
+      <Box sx={{ width: 260, flexShrink: 0, pt: 2 }}>
+        <Stack spacing={2.5}>
+          {player1 && (
             <GoPlayerPanel
-              player={player2}
-              isCurrentTurn={player2.color === currentColor && phase === 'play'}
+              player={player1}
+              isCurrentTurn={player1.color === currentColor && phase === 'play'}
               timerEnabled={timerEnabled}
               byoyomiTime={byoyomiTime}
             />
           )}
-        </Box>
+
+          {phase === 'play' && (
+            <GoControls
+              isMyTurn={isMyTurn}
+              phase={phase}
+              moveCount={moveCount}
+              pendingUndo={pendingUndo}
+              mySlot={mySlot}
+              onPass={pass}
+              onResign={resign}
+              onRequestUndo={requestUndo}
+              onApproveUndo={approveUndo}
+              onRejectUndo={rejectUndo}
+            />
+          )}
+
+          {phase === 'scoring' && (
+            <GoScoringPanel
+              score={score}
+              players={players}
+              mySlot={mySlot}
+              onAgree={agreeScoring}
+              onReject={rejectScoring}
+            />
+          )}
+
+          {/* Utility buttons — separated from game controls */}
+          <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+            <Stack spacing={1.5}>
+              <Button
+                variant="outlined"
+                startIcon={<MenuBookIcon />}
+                onClick={() => setShowHelp(true)}
+                fullWidth
+                sx={{
+                  ...panelBtnSx,
+                  borderColor: 'rgba(44,62,80,0.25)', color: '#2c3e50',
+                  '&:hover': { borderColor: '#2c3e50', bgcolor: 'rgba(44,62,80,0.06)' },
+                }}
+              >
+                {t('go.help.title' as any)}
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ExitToAppIcon />}
+                onClick={() => setShowLeaveConfirm(true)}
+                fullWidth
+                sx={{
+                  ...panelBtnSx,
+                  borderColor: 'rgba(231,76,60,0.3)', color: '#e74c3c',
+                  '&:hover': { borderColor: '#c0392b', bgcolor: 'rgba(231,76,60,0.06)' },
+                }}
+              >
+                {t('go.leaveRoom' as any)}
+              </Button>
+            </Stack>
+          </Box>
+        </Stack>
+      </Box>
+
+      {/* Center: turn indicator + board */}
+      <Box sx={{ flex: '1 1 auto', maxWidth: 700, minWidth: 0, pt: 1 }}>
+        {TurnIndicator}
+        {BoardComponent}
+      </Box>
+
+      {/* Right panel: opponent player */}
+      <Box sx={{ width: 260, flexShrink: 0, pt: 2 }}>
+        {player2 && (
+          <GoPlayerPanel
+            player={player2}
+            isCurrentTurn={player2.color === currentColor && phase === 'play'}
+            timerEnabled={timerEnabled}
+            byoyomiTime={byoyomiTime}
+          />
+        )}
       </Box>
     </Box>
   );

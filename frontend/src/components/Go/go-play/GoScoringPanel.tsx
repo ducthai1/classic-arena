@@ -1,5 +1,6 @@
 /**
  * GoScoringPanel — Scoring phase controls: agree/reject, score display.
+ * Generous padding, clear visual hierarchy.
  */
 import React from 'react';
 import { Box, Button, Paper, Stack, Typography, Divider } from '@mui/material';
@@ -32,8 +33,8 @@ const GoScoringPanel: React.FC<GoScoringPanelProps> = React.memo(({
     <Paper
       elevation={3}
       sx={{
-        p: 2,
-        borderRadius: 2,
+        p: 2.5,
+        borderRadius: 3,
         border: '1px solid',
         borderColor: 'primary.main',
         bgcolor: 'background.paper',
@@ -43,74 +44,76 @@ const GoScoringPanel: React.FC<GoScoringPanelProps> = React.memo(({
         {t('go.scoringPhase')}
       </Typography>
 
-      <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mb={1.5}>
+      <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mb={2}>
         {t('go.scoringHint')}
       </Typography>
 
       {score && (
         <>
-          <Divider sx={{ mb: 1.5 }} />
-          <Stack direction="row" justifyContent="space-around" mb={1.5}>
-            <Stack alignItems="center">
+          <Divider sx={{ mb: 2 }} />
+          <Stack direction="row" justifyContent="space-around" mb={2}>
+            <Stack alignItems="center" spacing={0.5}>
               <Box
                 sx={{
-                  width: 14, height: 14, borderRadius: '50%',
-                  bgcolor: '#1a1a1a', border: '1px solid #444', mb: 0.5,
+                  width: 18, height: 18, borderRadius: '50%',
+                  bgcolor: '#1a1a1a', border: '1.5px solid #444',
                 }}
               />
-              <Typography variant="body2" fontWeight="bold">{score.black.total}</Typography>
+              <Typography variant="h6" fontWeight="bold">{score.black.total}</Typography>
               <Typography variant="caption" color="text.secondary">
                 {t('go.black')}
               </Typography>
             </Stack>
-            <Stack alignItems="center">
+            <Stack alignItems="center" spacing={0.5}>
               <Box
                 sx={{
-                  width: 14, height: 14, borderRadius: '50%',
-                  bgcolor: '#f5f5f5', border: '1.5px solid #888', mb: 0.5,
+                  width: 18, height: 18, borderRadius: '50%',
+                  bgcolor: '#f5f5f5', border: '2px solid #999',
                 }}
               />
-              <Typography variant="body2" fontWeight="bold">{score.white.total}</Typography>
+              <Typography variant="h6" fontWeight="bold">{score.white.total}</Typography>
               <Typography variant="caption" color="text.secondary">
                 {t('go.white')}
               </Typography>
             </Stack>
           </Stack>
-          <Divider sx={{ mb: 1.5 }} />
+          <Divider sx={{ mb: 2 }} />
         </>
       )}
 
       {/* Player agreement status */}
-      <Stack spacing={0.5} mb={1.5}>
+      <Stack spacing={0.75} mb={2}>
         {players.map(p => (
           <Stack key={p.slot} direction="row" alignItems="center" justifyContent="space-between">
-            <Typography variant="caption">
+            <Typography variant="body2">
               {p.username || p.guestName || `${t('common.player' as any)} ${p.slot}`}
             </Typography>
-            <Typography variant="caption" color={p.scoringAgreed ? 'success.main' : 'text.secondary'}>
+            <Typography variant="body2" fontWeight={600} color={p.scoringAgreed ? 'success.main' : 'text.secondary'}>
               {p.scoringAgreed ? t('go.agreed') : t('go.pending')}
             </Typography>
           </Stack>
         ))}
       </Stack>
 
-      <Stack direction="row" spacing={1} justifyContent="center">
+      <Stack spacing={1.5}>
         <Button
           variant="contained"
           color="success"
-          size="small"
           startIcon={<CheckIcon />}
           disabled={alreadyAgreed}
           onClick={onAgree}
+          fullWidth
+          sx={{ py: 1, fontWeight: 600, textTransform: 'none', fontSize: '0.85rem', borderRadius: 2 }}
         >
           {alreadyAgreed ? t('go.agreed') : t('go.agreeScoring')}
         </Button>
         <Button
           variant="outlined"
           color="warning"
-          size="small"
           startIcon={<ReplayIcon />}
           onClick={onReject}
+          fullWidth
+          sx={{ py: 1, fontWeight: 600, textTransform: 'none', fontSize: '0.85rem', borderRadius: 2 }}
         >
           {t('go.resumePlay')}
         </Button>

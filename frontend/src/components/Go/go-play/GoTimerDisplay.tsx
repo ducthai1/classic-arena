@@ -1,5 +1,6 @@
 /**
  * GoTimerDisplay — Shows main time and byoyomi countdown for a player.
+ * Centered, prominent timer with clear visual states.
  */
 import React from 'react';
 import { Box, Typography } from '@mui/material';
@@ -41,33 +42,41 @@ const GoTimerDisplay: React.FC<GoTimerDisplayProps> = React.memo(({
   const color = isCritical ? 'error.main' : isWarning ? 'warning.main' : 'text.primary';
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 80 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        py: 0.5,
+      }}
+    >
       {inByoyomi ? (
         <>
           <Typography
-            variant="h6"
+            variant="h5"
             fontWeight="bold"
             sx={{
               color,
               animation: isCritical && isActive ? `${pulseAnim} 0.8s ease-in-out infinite` : 'none',
               fontVariantNumeric: 'tabular-nums',
-              lineHeight: 1,
+              lineHeight: 1.2,
             }}
           >
             {byoyomiTime}s
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            ×{byoyomiPeriodsLeft}
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
+            x{byoyomiPeriodsLeft}
           </Typography>
         </>
       ) : (
         <Typography
-          variant="h6"
+          variant="h5"
           fontWeight="bold"
           sx={{
             color,
             animation: isCritical && isActive ? `${pulseAnim} 0.8s ease-in-out infinite` : 'none',
             fontVariantNumeric: 'tabular-nums',
+            lineHeight: 1.2,
           }}
         >
           {formatMM_SS(mainTimeLeft)}

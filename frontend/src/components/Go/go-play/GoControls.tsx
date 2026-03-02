@@ -1,5 +1,6 @@
 /**
  * GoControls — Pass, Resign, Undo buttons + undo approval UI.
+ * Styled with consistent button sizing and generous spacing.
  */
 import React from 'react';
 import { Box, Button, Stack, Paper, Typography } from '@mui/material';
@@ -23,6 +24,15 @@ interface GoControlsProps {
   onApproveUndo: () => void;
   onRejectUndo: () => void;
 }
+
+/** Shared button sx for consistent look */
+const actionBtnSx = {
+  py: 1,
+  fontWeight: 600,
+  textTransform: 'none' as const,
+  fontSize: '0.85rem',
+  borderRadius: 2,
+};
 
 const GoControls: React.FC<GoControlsProps> = React.memo(({
   isMyTurn,
@@ -58,37 +68,37 @@ const GoControls: React.FC<GoControlsProps> = React.memo(({
   if (phase !== 'play') return null;
 
   return (
-    <Stack spacing={1} alignItems="stretch">
+    <Stack spacing={1.5}>
       {/* Undo approval banner */}
       {undoPendingForMe && (
         <Paper
           elevation={3}
           sx={{
-            p: 1.5,
+            p: 2,
             border: '1px solid',
             borderColor: 'warning.main',
-            borderRadius: 2,
+            borderRadius: 2.5,
           }}
         >
-          <Typography variant="body2" mb={1} textAlign="center">
+          <Typography variant="body2" mb={1.5} textAlign="center" fontWeight={500}>
             {t('go.undoPending')}
           </Typography>
-          <Stack direction="row" spacing={1} justifyContent="center">
+          <Stack direction="row" spacing={1.5} justifyContent="center">
             <Button
-              size="small"
               variant="contained"
               color="success"
               startIcon={<CheckIcon />}
               onClick={onApproveUndo}
+              sx={{ ...actionBtnSx, flex: 1 }}
             >
               {t('go.approve')}
             </Button>
             <Button
-              size="small"
               variant="outlined"
               color="error"
               startIcon={<CloseIcon />}
               onClick={onRejectUndo}
+              sx={{ ...actionBtnSx, flex: 1 }}
             >
               {t('go.reject')}
             </Button>
@@ -102,16 +112,16 @@ const GoControls: React.FC<GoControlsProps> = React.memo(({
         </Typography>
       )}
 
-      {/* Action buttons — stacked vertically for clarity */}
-      <Stack spacing={1}>
+      {/* Game action buttons — vertical, full-width, generous padding */}
+      <Stack spacing={1.5}>
         <Button
           variant="outlined"
           color="primary"
           startIcon={<PauseIcon />}
           disabled={!isMyTurn}
           onClick={handlePass}
-          size="small"
           fullWidth
+          sx={actionBtnSx}
         >
           {t('go.pass')}
         </Button>
@@ -121,8 +131,8 @@ const GoControls: React.FC<GoControlsProps> = React.memo(({
           color="error"
           startIcon={<FlagIcon />}
           onClick={handleResign}
-          size="small"
           fullWidth
+          sx={actionBtnSx}
         >
           {t('go.resign')}
         </Button>
@@ -133,8 +143,8 @@ const GoControls: React.FC<GoControlsProps> = React.memo(({
           startIcon={<UndoIcon />}
           disabled={moveCount === 0 || !!pendingUndo}
           onClick={onRequestUndo}
-          size="small"
           fullWidth
+          sx={actionBtnSx}
         >
           {t('go.undo')}
         </Button>

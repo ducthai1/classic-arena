@@ -1,5 +1,6 @@
 /**
- * GoPlayerPanel — Displays player info, captures, timer, and turn indicator.
+ * GoPlayerPanel — Displays player info: name, stone color, captures, timer, status chips.
+ * Designed for 260px+ side panels with generous spacing.
  */
 import React from 'react';
 import { Box, Paper, Typography, Stack, Chip } from '@mui/material';
@@ -16,8 +17,8 @@ interface GoPlayerPanelProps {
 }
 
 const glowAnim = keyframes`
-  0%, 100% { box-shadow: 0 0 6px 2px rgba(255, 220, 50, 0.4); }
-  50% { box-shadow: 0 0 14px 4px rgba(255, 220, 50, 0.8); }
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255, 220, 50, 0.35); }
+  50% { box-shadow: 0 0 18px 6px rgba(255, 220, 50, 0.7); }
 `;
 
 const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
@@ -34,52 +35,52 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
     <Paper
       elevation={isCurrentTurn ? 4 : 1}
       sx={{
-        p: 2,
-        borderRadius: 2,
+        p: 2.5,
+        borderRadius: 3,
         border: '2px solid',
         borderColor: isCurrentTurn ? 'warning.main' : 'divider',
-        animation: isCurrentTurn ? `${glowAnim} 1.5s ease-in-out infinite` : 'none',
+        animation: isCurrentTurn ? `${glowAnim} 1.8s ease-in-out infinite` : 'none',
         transition: 'border-color 0.3s, box-shadow 0.3s',
       }}
     >
-      <Stack spacing={1.5}>
-        {/* Name + color indicator */}
-        <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack spacing={2}>
+        {/* Name + color stone indicator */}
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box
             sx={{
-              width: 22,
-              height: 22,
+              width: 26,
+              height: 26,
               borderRadius: '50%',
               bgcolor: isBlack ? '#1a1a1a' : '#f5f5f5',
-              border: isBlack ? '1px solid #444' : '1.5px solid #888',
+              border: isBlack ? '1.5px solid #444' : '2px solid #999',
               flexShrink: 0,
               boxShadow: isBlack
-                ? 'inset -1px -1px 3px rgba(255,255,255,0.15)'
-                : 'inset -1px -1px 3px rgba(0,0,0,0.1)',
+                ? 'inset -2px -2px 4px rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.3)'
+                : 'inset -2px -2px 4px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.15)',
             }}
           />
           <Typography
-            variant="body2"
-            fontWeight={isCurrentTurn ? 700 : 400}
+            variant="body1"
+            fontWeight={isCurrentTurn ? 700 : 500}
             noWrap
-            sx={{ flex: 1, maxWidth: 160 }}
+            sx={{ flex: 1 }}
             title={displayName}
           >
             {displayName}
           </Typography>
         </Stack>
 
-        {/* Captures */}
-        <Stack direction="row" alignItems="center" spacing={0.5}>
-          <Typography variant="caption" color="text.secondary">
+        {/* Captures count */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 0.5 }}>
+          <Typography variant="body2" color="text.secondary">
             {t('go.captures')}:
           </Typography>
-          <Typography variant="caption" fontWeight="bold">
+          <Typography variant="body2" fontWeight="bold" color="text.primary">
             {player.captures}
           </Typography>
-        </Stack>
+        </Box>
 
-        {/* Timer */}
+        {/* Timer — centered, prominent */}
         <GoTimerDisplay
           mainTimeLeft={player.mainTimeLeft}
           byoyomiPeriodsLeft={player.byoyomiPeriodsLeft}
@@ -88,34 +89,34 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
           timerEnabled={timerEnabled}
         />
 
-        {/* Connection status */}
-        {!player.isConnected && (
-          <Chip
-            label={t('go.disconnected')}
-            color="error"
-            size="small"
-            sx={{ fontSize: '0.65rem', height: 20 }}
-          />
-        )}
-
-        {/* Passed indicator */}
-        {player.passed && (
-          <Chip
-            label={t('go.passed' as any)}
-            color="default"
-            size="small"
-            sx={{ fontSize: '0.65rem', height: 20 }}
-          />
-        )}
-
-        {/* Scoring agreed */}
-        {player.scoringAgreed && (
-          <Chip
-            label={t('go.agreed')}
-            color="success"
-            size="small"
-            sx={{ fontSize: '0.65rem', height: 20 }}
-          />
+        {/* Status chips row */}
+        {(!player.isConnected || player.passed || player.scoringAgreed) && (
+          <Stack direction="row" spacing={0.5} flexWrap="wrap">
+            {!player.isConnected && (
+              <Chip
+                label={t('go.disconnected')}
+                color="error"
+                size="small"
+                sx={{ fontSize: '0.7rem', height: 22 }}
+              />
+            )}
+            {player.passed && (
+              <Chip
+                label={t('go.passed' as any)}
+                color="default"
+                size="small"
+                sx={{ fontSize: '0.7rem', height: 22 }}
+              />
+            )}
+            {player.scoringAgreed && (
+              <Chip
+                label={t('go.agreed')}
+                color="success"
+                size="small"
+                sx={{ fontSize: '0.7rem', height: 22 }}
+              />
+            )}
+          </Stack>
         )}
       </Stack>
     </Paper>
