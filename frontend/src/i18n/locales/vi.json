@@ -13,7 +13,16 @@
     "yes": "Có",
     "no": "Không",
     "or": "hoặc",
-    "and": "và"
+    "and": "và",
+    "player": "Người chơi",
+    "online": "Trực tuyến",
+    "disconnected": "Mất kết nối",
+    "editName": "Đổi tên",
+    "device": {
+      "mobile": "Điện thoại",
+      "tablet": "Máy tính bảng",
+      "desktop": "Máy tính"
+    }
   },
   "nav": {
     "home": "Trang chủ",
@@ -1384,6 +1393,7 @@
         "horseGallop": "{{name}} chọn đi {{steps}} bước",
         "seahorseDraw": "{{name}} rút thêm 1 thẻ",
         "pigfishDive": "{{name}} miễn thuê lần tiếp",
+        "pigfishRentImmunity": "Miễn phí thuê",
         "slothHibernate": "{{name}} ngủ đông +1500 TT",
         "trauPlow": "{{name}} +1200 TT từ ngân hàng",
         "elephantBuild": "{{name}} xây nhà miễn phí"
@@ -1494,6 +1504,18 @@
     "winByTimeout": "do hết giờ",
     "undoPending": "Đang chờ phê duyệt hoàn tác...",
     "undoWaiting": "Đối thủ yêu cầu hoàn tác",
+    "you": "Bạn",
+    "players": "Người chơi",
+    "starting": "Đang bắt đầu...",
+    "chat": "Trò chuyện",
+    "noChatMessages": "Chưa có tin nhắn",
+    "chatPlaceholder": "Nhập tin nhắn...",
+    "confirmLeaveMsg": "Bạn có chắc muốn rời phòng?",
+    "passed": "Đã bỏ lượt",
+    "colorTurn": "Lượt của {{color}}",
+    "yourTurnColor": "Lượt của bạn ({{color}})",
+    "byoyomiTime": "Thời gian Byoyomi",
+    "byoyomiPeriods": "Chu kỳ Byoyomi",
     "help": {
       "title": "Hướng dẫn luật Cờ Vây",
       "basics": {

@@ -295,7 +295,7 @@ export const WordChainWaitingRoom: React.FC = () => {
                 ) : (
                   <WifiOffIcon sx={{ fontSize: 18, color: '#e74c3c' }} />
                 )}
-                <Tooltip title={player.deviceType === 'mobile' ? 'Mobile' : player.deviceType === 'tablet' ? 'Tablet' : 'Desktop'}>
+                <Tooltip title={player.deviceType === 'mobile' ? t('common.device.mobile' as any) : player.deviceType === 'tablet' ? t('common.device.tablet' as any) : t('common.device.desktop' as any)}>
                   <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center' }}>
                     {player.deviceType === 'mobile' ? (
                       <PhoneIphoneIcon sx={{ fontSize: 16, color: '#3498db' }} />

@@ -4,6 +4,7 @@
 import React from 'react';
 import { Box, Paper, Typography, Stack, Chip } from '@mui/material';
 import { keyframes } from '@mui/system';
+import { useLanguage } from '../../../i18n';
 import { GoPlayer } from '../go-types';
 import GoTimerDisplay from './GoTimerDisplay';
 
@@ -25,7 +26,8 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
   timerEnabled,
   byoyomiTime,
 }) => {
-  const displayName = player.username || player.guestName || `Player ${player.slot}`;
+  const { t } = useLanguage();
+  const displayName = player.username || player.guestName || `${t('common.player' as any)} ${player.slot}`;
   const isBlack = player.color === 'black';
 
   return (
@@ -71,7 +73,7 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
         {/* Captures */}
         <Stack direction="row" alignItems="center" spacing={0.5}>
           <Typography variant="caption" color="text.secondary">
-            Captures:
+            {t('go.captures')}:
           </Typography>
           <Typography variant="caption" fontWeight="bold">
             {player.captures}
@@ -90,7 +92,7 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
         {/* Connection status */}
         {!player.isConnected && (
           <Chip
-            label="Disconnected"
+            label={t('go.disconnected')}
             color="error"
             size="small"
             sx={{ fontSize: '0.65rem', height: 20 }}
@@ -100,7 +102,7 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
         {/* Passed indicator */}
         {player.passed && (
           <Chip
-            label="Passed"
+            label={t('go.passed' as any)}
             color="default"
             size="small"
             sx={{ fontSize: '0.65rem', height: 20 }}
@@ -110,7 +112,7 @@ const GoPlayerPanel: React.FC<GoPlayerPanelProps> = React.memo(({
         {/* Scoring agreed */}
         {player.scoringAgreed && (
           <Chip
-            label="Agreed"
+            label={t('go.agreed')}
             color="success"
             size="small"
             sx={{ fontSize: '0.65rem', height: 20 }}

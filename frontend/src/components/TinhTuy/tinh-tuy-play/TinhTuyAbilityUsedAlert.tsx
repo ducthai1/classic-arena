@@ -215,7 +215,7 @@ export const TinhTuyAbilityUsedAlert: React.FC = () => {
               </Box>
             )}
             {alert.abilityId === 'pigfish-active' && (
-              <Typography variant="body2" sx={{ fontWeight: 700, color: '#3498db' }}>🛡️ Rent Immunity</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#3498db' }}>🛡️ {(t as any)('tinhTuy.abilities.notifications.pigfishRentImmunity')}</Typography>
             )}
           </Box>
         )}

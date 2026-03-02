@@ -47,7 +47,7 @@ const GoWinnerModal: React.FC<GoWinnerModalProps> = React.memo(({
   if (!winner) return null;
 
   const isWinner = winner.slot === mySlot;
-  const winnerName = winner.username || winner.guestName || `Player ${winner.slot}`;
+  const winnerName = winner.username || winner.guestName || `${t('common.player' as any)} ${winner.slot}`;
 
   const winReasonText = winReason === 'resign'
     ? t('go.winByResign')

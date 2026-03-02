@@ -109,10 +109,10 @@ const GoPlayView: React.FC = () => {
       display="block"
     >
       {phase === 'scoring'
-        ? 'Scoring Phase'
+        ? t('go.scoringPhase')
         : isMyTurn
-          ? `Your turn (${myColor})`
-          : `${currentColor === 'black' ? 'Black' : 'White'}'s turn`
+          ? (t('go.yourTurnColor' as any) || '').replace('{{color}}', myColor === 'black' ? t('go.black') : t('go.white'))
+          : (t('go.colorTurn' as any) || '').replace('{{color}}', currentColor === 'black' ? t('go.black') : t('go.white'))
       }
     </Typography>
   );

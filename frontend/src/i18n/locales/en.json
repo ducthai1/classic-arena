@@ -13,7 +13,16 @@
     "yes": "Yes",
     "no": "No",
     "or": "or",
-    "and": "and"
+    "and": "and",
+    "player": "Player",
+    "online": "Online",
+    "disconnected": "Disconnected",
+    "editName": "Edit Name",
+    "device": {
+      "mobile": "Mobile",
+      "tablet": "Tablet",
+      "desktop": "Desktop"
+    }
   },
   "nav": {
     "home": "Home",
@@ -1384,6 +1393,7 @@
         "horseGallop": "{{name}} chose to move {{steps}} steps",
         "seahorseDraw": "{{name}} drew an extra card",
         "pigfishDive": "{{name}} gained rent immunity",
+        "pigfishRentImmunity": "Rent Immunity",
         "slothHibernate": "{{name}} hibernated +1500 TT",
         "trauPlow": "{{name}} gained +1200 TT from bank",
         "elephantBuild": "{{name}} built a house for free"
@@ -1494,6 +1504,18 @@
     "winByTimeout": "by timeout",
     "undoPending": "Undo request pending...",
     "undoWaiting": "Opponent requests undo",
+    "you": "You",
+    "players": "Players",
+    "starting": "Starting...",
+    "chat": "Chat",
+    "noChatMessages": "No messages yet",
+    "chatPlaceholder": "Type a message...",
+    "confirmLeaveMsg": "Are you sure you want to leave this room?",
+    "passed": "Passed",
+    "colorTurn": "{{color}}'s turn",
+    "yourTurnColor": "Your turn ({{color}})",
+    "byoyomiTime": "Byoyomi time",
+    "byoyomiPeriods": "Byoyomi periods",
     "help": {
       "title": "Go Rules Guide",
       "basics": {

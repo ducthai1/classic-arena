@@ -28,11 +28,11 @@ const MAIN_TIMES = [0, 60, 180, 300, 600, 900, 1200, 1800]; // seconds
 const BYOYOMI_PERIODS = [1, 2, 3, 5];
 const BYOYOMI_TIMES = [10, 20, 30, 60]; // seconds
 
-function formatMainTime(s: number): string {
-  if (s === 0) return 'No Timer';
+function formatMainTime(s: number, noTimerLabel: string): string {
+  if (s === 0) return noTimerLabel;
   if (s < 60) return `${s}s`;
   const m = Math.round(s / 60);
-  return `${m} min`;
+  return `${m}min`;
 }
 
 export const GoCreateRoom: React.FC<GoCreateRoomProps> = ({ open, onClose }) => {
@@ -166,7 +166,7 @@ export const GoCreateRoom: React.FC<GoCreateRoomProps> = ({ open, onClose }) => 
                 <MenuItem key={s} value={s}>
                   {s === 0
                     ? <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}><TimerOffIcon sx={{ fontSize: 16 }} />{t('go.timer.noTimer')}</Box>
-                    : formatMainTime(s)
+                    : formatMainTime(s, t('go.timer.noTimer'))
                   }
                 </MenuItem>
               ))}
@@ -177,7 +177,7 @@ export const GoCreateRoom: React.FC<GoCreateRoomProps> = ({ open, onClose }) => 
         <Collapse in={timerEnabled}>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2.5 }}>
             <Box>
-              <Typography sx={labelSx}>{t('go.timer.byoyomi')} (periods)</Typography>
+              <Typography sx={labelSx}>{t('go.byoyomiPeriods' as any)}</Typography>
               <FormControl size="small" sx={{ minWidth: 100 }}>
                 <Select
                   value={byoyomiPeriods}
@@ -192,7 +192,7 @@ export const GoCreateRoom: React.FC<GoCreateRoomProps> = ({ open, onClose }) => 
               </FormControl>
             </Box>
             <Box>
-              <Typography sx={labelSx}>Byoyomi time</Typography>
+              <Typography sx={labelSx}>{t('go.byoyomiTime' as any)}</Typography>
               <FormControl size="small" sx={{ minWidth: 120 }}>
                 <Select
                   value={byoyomiTime}

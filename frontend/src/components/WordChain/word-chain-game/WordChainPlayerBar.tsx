@@ -10,6 +10,7 @@ import WifiOffIcon from '@mui/icons-material/WifiOff';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import TabletMacIcon from '@mui/icons-material/TabletMac';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
+import { useLanguage } from '../../../i18n';
 import { WordChainPlayer } from '../word-chain-types';
 
 interface Props {
@@ -31,6 +32,7 @@ const glow = keyframes`
 `;
 
 export const WordChainPlayerBar: React.FC<Props> = ({ players, currentPlayerSlot, mySlot, onEditName }) => {
+  const { t } = useLanguage();
   return (
     <Box
       sx={{
@@ -106,10 +108,10 @@ export const WordChainPlayerBar: React.FC<Props> = ({ players, currentPlayerSlot
                   fontSize: { xs: '0.85rem', md: '0.85rem' },
                 }}
               >
-                {player.name || 'Player'}{isMe ? ' *' : ''}
+                {player.name || t('common.player' as any)}{isMe ? ' *' : ''}
 
                 {/* Connection + Device Status */}
-                <Tooltip title={player.isConnected ? 'Online' : 'Disconnected'}>
+                <Tooltip title={player.isConnected ? t('common.online' as any) : t('common.disconnected' as any)}>
                   <Box component="span" sx={{ display: 'inline-flex', verticalAlign: 'middle', ml: 0.5 }}>
                     {player.isConnected ? (
                       <WifiIcon sx={{ fontSize: 14, color: '#2ecc71' }} />
@@ -118,7 +120,7 @@ export const WordChainPlayerBar: React.FC<Props> = ({ players, currentPlayerSlot
                     )}
                   </Box>
                 </Tooltip>
-                <Tooltip title={player.deviceType === 'mobile' ? 'Mobile' : player.deviceType === 'tablet' ? 'Tablet' : 'Desktop'}>
+                <Tooltip title={player.deviceType === 'mobile' ? t('common.device.mobile' as any) : player.deviceType === 'tablet' ? t('common.device.tablet' as any) : t('common.device.desktop' as any)}>
                   <Box component="span" sx={{ display: 'inline-flex', verticalAlign: 'middle', ml: 0.25 }}>
                     {player.deviceType === 'mobile' ? (
                       <PhoneIphoneIcon sx={{ fontSize: 13, color: '#3498db' }} />
@@ -131,7 +133,7 @@ export const WordChainPlayerBar: React.FC<Props> = ({ players, currentPlayerSlot
                 </Tooltip>
 
                 {isMe && onEditName && (
-                  <Tooltip title="Edit Name">
+                  <Tooltip title={t('common.editName' as any)}>
                     <IconButton
                       size="small"
                       onClick={(e) => {

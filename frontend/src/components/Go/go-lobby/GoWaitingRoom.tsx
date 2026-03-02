@@ -37,15 +37,15 @@ const MAIN_TIMES = [0, 60, 180, 300, 600, 900, 1200, 1800];
 const BYOYOMI_PERIODS = [1, 2, 3, 5];
 const BYOYOMI_TIMES = [10, 20, 30, 60];
 
-function formatMainTime(s: number): string {
-  if (s === 0) return 'No Timer';
+function formatMainTime(s: number, noTimerLabel: string): string {
+  if (s === 0) return noTimerLabel;
   if (s < 60) return `${s}s`;
   return `${Math.round(s / 60)}min`;
 }
 
-function formatTimer(rules: GoRules): string {
-  if (!rules.mainTime) return 'No Timer';
-  return `${formatMainTime(rules.mainTime)} + ${rules.byoyomiPeriods}×${rules.byoyomiTime}s`;
+function formatTimer(rules: GoRules, noTimerLabel: string): string {
+  if (!rules.mainTime) return noTimerLabel;
+  return `${formatMainTime(rules.mainTime, noTimerLabel)} + ${rules.byoyomiPeriods}×${rules.byoyomiTime}s`;
 }
 
 export const GoWaitingRoom: React.FC = () => {
@@ -213,13 +213,13 @@ export const GoWaitingRoom: React.FC = () => {
             )}
             <Chip
               icon={rules.mainTime ? <TimerIcon sx={{ fontSize: '14px !important', color: '#d35400 !important' }} /> : <TimerOffIcon sx={{ fontSize: '14px !important', color: '#999 !important' }} />}
-              label={formatTimer(rules)}
+              label={formatTimer(rules, t('go.timer.noTimer'))}
               size="small"
               sx={{ fontWeight: 600, bgcolor: rules.mainTime ? 'rgba(230, 126, 34, 0.1)' : 'rgba(0,0,0,0.04)', color: rules.mainTime ? '#d35400' : 'text.secondary', border: rules.mainTime ? '1px solid rgba(230, 126, 34, 0.2)' : '1px solid rgba(0,0,0,0.1)' }}
             />
             {state.hasPassword && (
               <Chip
-                label="Password"
+                label={t('go.password')}
                 size="small"
                 sx={{ fontWeight: 600, bgcolor: 'rgba(241, 196, 15, 0.1)', color: '#f39c12', border: '1px solid rgba(241, 196, 15, 0.2)' }}
               />
@@ -231,7 +231,7 @@ export const GoWaitingRoom: React.FC = () => {
       {/* Player Slots */}
       <Paper elevation={1} sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3, mb: 3 }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
-          {t('go.playerSlot').replace(' {{slot}}', 's')} ({state.players.length}/2)
+          {t('go.players' as any)} ({state.players.length}/2)
         </Typography>
 
         <Stack spacing={1}>
@@ -279,7 +279,7 @@ export const GoWaitingRoom: React.FC = () => {
                       </Typography>
                       {isMe && (
                         <Typography component="span" variant="caption" sx={{ color: GO_ACCENT }}>
-                          (You)
+                          ({t('go.you' as any)})
                         </Typography>
                       )}
                       <Chip label={colorLabel} size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: slot === 1 ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.04)', color: 'text.secondary' }} />
@@ -323,7 +323,7 @@ export const GoWaitingRoom: React.FC = () => {
             }}
           >
             {isStarting
-              ? 'Starting...'
+              ? t('go.starting' as any)
               : canStart
               ? t('go.startGame')
               : t('go.waitingForOpponent')}
@@ -354,7 +354,7 @@ export const GoWaitingRoom: React.FC = () => {
         <Box sx={{ px: 2, py: 1, bgcolor: 'rgba(44, 62, 80, 0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 1 }}>
           <ChatBubbleOutlineIcon sx={{ fontSize: 16, color: GO_ACCENT }} />
           <Typography variant="caption" sx={{ fontWeight: 700, color: GO_ACCENT }}>
-            Chat
+            {t('go.chat' as any)}
           </Typography>
         </Box>
         <Box
@@ -368,7 +368,7 @@ export const GoWaitingRoom: React.FC = () => {
         >
           {state.chatMessages.length === 0 ? (
             <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center', mt: 3 }}>
-              {t('go.noChatMessages' as any) || 'No messages yet'}
+              {t('go.noChatMessages' as any)}
             </Typography>
           ) : (
             state.chatMessages.map((msg, i) => (
@@ -390,7 +390,7 @@ export const GoWaitingRoom: React.FC = () => {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value.slice(0, 200))}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat(); } }}
-            placeholder={t('go.chatPlaceholder' as any) || 'Type a message...'}
+            placeholder={t('go.chatPlaceholder' as any)}
             autoComplete="off"
             sx={{
               '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: '0.8rem' },
@@ -407,7 +407,7 @@ export const GoWaitingRoom: React.FC = () => {
       <ConfirmDialog
         open={showLeaveConfirm}
         title={t('go.leaveRoom')}
-        message="Are you sure you want to leave this room?"
+        message={t('go.confirmLeaveMsg' as any)}
         confirmText={t('go.leaveRoom')}
         variant="warning"
         onConfirm={() => { setShowLeaveConfirm(false); leaveRoom(); }}
@@ -509,7 +509,7 @@ export const GoWaitingRoom: React.FC = () => {
                   <MenuItem key={s} value={s}>
                     {s === 0
                       ? <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}><TimerOffIcon sx={{ fontSize: 16 }} />{t('go.timer.noTimer')}</Box>
-                      : formatMainTime(s)
+                      : formatMainTime(s, t('go.timer.noTimer'))
                     }
                   </MenuItem>
                 ))}
@@ -520,7 +520,7 @@ export const GoWaitingRoom: React.FC = () => {
           <Collapse in={editMainTime > 0}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2.5 }}>
               <Box>
-                <Typography sx={labelSx}>Byoyomi periods</Typography>
+                <Typography sx={labelSx}>{t('go.byoyomiPeriods' as any)}</Typography>
                 <FormControl size="small" sx={{ minWidth: 100 }}>
                   <Select
                     value={editByoyomiPeriods}
@@ -535,7 +535,7 @@ export const GoWaitingRoom: React.FC = () => {
                 </FormControl>
               </Box>
               <Box>
-                <Typography sx={labelSx}>Byoyomi time</Typography>
+                <Typography sx={labelSx}>{t('go.byoyomiTime' as any)}</Typography>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
                   <Select
                     value={editByoyomiTime}

@@ -85,7 +85,7 @@ const GoScoringPanel: React.FC<GoScoringPanelProps> = React.memo(({
         {players.map(p => (
           <Stack key={p.slot} direction="row" alignItems="center" justifyContent="space-between">
             <Typography variant="caption">
-              {p.username || p.guestName || `Player ${p.slot}`}
+              {p.username || p.guestName || `${t('common.player' as any)} ${p.slot}`}
             </Typography>
             <Typography variant="caption" color={p.scoringAgreed ? 'success.main' : 'text.secondary'}>
               {p.scoringAgreed ? t('go.agreed') : t('go.pending')}
