@@ -132,6 +132,7 @@ export const GoWaitingRoom: React.FC = () => {
       sx={{
         p: { xs: 2, sm: 3, md: 4 },
         pt: { xs: '96px', md: 4 },
+        width: '100%',
         maxWidth: 720,
         mx: 'auto',
         minHeight: '100vh',
@@ -317,6 +318,7 @@ export const GoWaitingRoom: React.FC = () => {
               py: 1.25,
               px: 4,
               fontWeight: 700,
+              whiteSpace: 'nowrap',
               flex: 1,
             }}
           >
@@ -338,6 +340,7 @@ export const GoWaitingRoom: React.FC = () => {
             py: 1.25,
             px: 3,
             fontWeight: 700,
+            whiteSpace: 'nowrap',
             minWidth: 120,
             flex: state.isHost ? undefined : 1,
           }}
