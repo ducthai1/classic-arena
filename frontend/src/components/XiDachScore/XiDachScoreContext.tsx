@@ -189,21 +189,58 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const latestSessionRef = useRef<XiDachSession | null>(null);
 
-  // Enqueue a save operation — ensures saves execute sequentially (FIFO)
-  // Each save waits for the previous one to complete before sending
-  const enqueueSave = useCallback((sessionCode: string, data: any, isCritical: boolean) => {
+  // Retry wrapper for critical saves — retries on failure with backoff
+  const saveWithRetry = useCallback(async (
+    sessionCode: string,
+    data: any,
+    expectedMatchCount: number | null,
+    maxRetries = 2,
+  ): Promise<void> => {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await xiDachApi.updateSession(sessionCode, data);
+        // Verify server saved all matches (only when sending full session)
+        if (expectedMatchCount !== null && response.matches) {
+          const serverCount = response.matches.length;
+          if (serverCount < expectedMatchCount) {
+            console.warn(`[XiDach] Server returned ${serverCount} matches, sent ${expectedMatchCount}. Retrying...`);
+            if (attempt < maxRetries) continue;
+            // Final attempt still wrong — notify user
+            getToast()?.error('toast.matchSaveFailed');
+          }
+        }
+        return; // Success
+      } catch (error) {
+        console.error(`[XiDach] Save attempt ${attempt + 1}/${maxRetries + 1} failed:`, error);
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+        } else {
+          throw error; // All retries exhausted
+        }
+      }
+    }
+  }, []);
+
+  // Enqueue a save — ensures saves execute sequentially (FIFO)
+  const enqueueSave = useCallback((
+    sessionCode: string,
+    data: any,
+    isCritical: boolean,
+    expectedMatchCount: number | null = null,
+  ) => {
     saveQueueRef.current = saveQueueRef.current
-      .then(() => xiDachApi.updateSession(sessionCode, data))
-      .then(() => {
-        // Save succeeded — no action needed
-      })
+      .then(() =>
+        isCritical
+          ? saveWithRetry(sessionCode, data, expectedMatchCount)
+          : xiDachApi.updateSession(sessionCode, data).then(() => {})
+      )
       .catch((error) => {
-        console.error('[XiDach] Save failed:', error);
+        console.error('[XiDach] Save failed after retries:', error);
         if (isCritical) {
           getToast()?.error('toast.matchSaveFailed');
         }
       });
-  }, []);
+  }, [saveWithRetry]);
 
   // Debounced save for non-critical updates (settings, players, dealer)
   // Only sends non-match fields to avoid overwriting match data
@@ -227,7 +264,7 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [enqueueSave]);
 
   // Immediate save for critical operations (match add/edit/delete)
-  // Sends full session and queues sequentially to prevent overwrites
+  // Sends full session with retry + server verification
   const immediateSave = useCallback((session: XiDachSession) => {
     if (!session.sessionCode) return;
     // Cancel any pending debounced save — immediateSave includes all data
@@ -236,7 +273,7 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
       saveTimeoutRef.current = null;
     }
     latestSessionRef.current = null;
-    enqueueSave(session.sessionCode, session, true);
+    enqueueSave(session.sessionCode, session, true, session.matches.length);
   }, [enqueueSave]);
 
   // Lightweight save for status-only updates
@@ -516,7 +553,7 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
       // Recalculate scores
       updated = recalculatePlayerScores(updated);
 
-      // Save session immediately (match data is critical)
+      // Save session immediately (match data is critical — with retry + verification)
       immediateSave(updated);
       dispatch({ type: 'UPDATE_SESSION', payload: updated });
 
