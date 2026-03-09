@@ -1,0 +1,126 @@
+================================================================================
+FILE: ~/switch-git.sh
+================================================================================
+
+#!/bin/bash
+
+ACCOUNT="$1"
+
+case "$ACCOUNT" in
+  personal)
+    USER_NAME="ducthai1"
+    USER_EMAIL="thaitangduc1@gmail.com"
+    SSH_KEY="$HOME/.ssh/id_ed25519_personal"
+    HOST_ALIAS="github.com-personal"
+    ;;
+  company)
+    USER_NAME="ducnc-hopee"
+    USER_EMAIL="ducnc@hopee.com.vn"
+    SSH_KEY="$HOME/.ssh/id_rsa"
+    HOST_ALIAS="github.com-company"
+    ;;
+  jfa)
+    USER_NAME="ducnguyen-dc"
+    USER_EMAIL="duc.nguyen@dcworks.jp"
+    SSH_KEY="$HOME/.ssh/id_ed25519"
+    HOST_ALIAS="github.com-jfa"
+    ;;
+  nexdor)
+    USER_NAME="nghiahd-cpu"
+    USER_EMAIL="nghia.hd@verytech.io"
+    SSH_KEY="$HOME/.ssh/id_ed25519_github"
+    HOST_ALIAS="github.com-nexpos"
+    ;;
+  xanhsm)
+    USER_NAME="VINGROUP\\pn.nghiahd"
+    USER_EMAIL="pn.nghiahd@vingroup.net"
+    SSH_KEY="$HOME/.ssh/id_ed25519_xanhms"
+    HOST_ALIAS="github.com-xanhsm"
+    ;;
+  tangduchopee)
+    USER_NAME="tangduchopee"
+    USER_EMAIL="ductt@hopee.com.vn"
+    SSH_KEY="$HOME/.ssh/id_ed25519_tangduchopee"
+    HOST_ALIAS="github.com-tangduchopee"
+    ;;
+  mthuyhopee)
+    USER_NAME="mthuyhopee"
+    USER_EMAIL="mthuy@hopee.com.vn"
+    SSH_KEY="$HOME/.ssh/id_ed25519_mthuyhopee"
+    HOST_ALIAS="github.com-mthuyhopee"
+    ;;
+  *)
+    echo "Usage: ./switch-git.sh [personal|company|jfa|nexdor|xanhsm|tangduchopee|mthuyhopee]"
+    exit 1
+    ;;
+esac
+
+# Set local Git user
+git config user.name "$USER_NAME" --local
+git config user.email "$USER_EMAIL" --local
+
+# Update remote URL to match host alias in SSH config
+CURRENT_URL=$(git remote get-url origin 2>/dev/null)
+
+if [[ -n "$CURRENT_URL" ]]; then
+  # Extract repo path after ':', e.g., user/repo.git
+  REPO_PATH=$(echo "$CURRENT_URL" | sed -E 's#.*:/*(.+)#\1#')
+  NEW_URL="git@$HOST_ALIAS:$REPO_PATH"
+  git remote set-url origin "$NEW_URL"
+fi
+
+# Add SSH key if not already added
+if ! ssh-add -l | grep -q "$(basename "$SSH_KEY")"; then
+  ssh-add "$SSH_KEY"
+fi
+
+echo "Switched to $ACCOUNT account"
+echo "Git user.name/email: $USER_NAME / $USER_EMAIL"
+
+if [[ -n "$CURRENT_URL" ]]; then
+  echo "Repo remote updated to: $(git remote get-url origin)"
+else
+  echo "No git repo detected here (remote not updated)."
+fi
+
+
+================================================================================
+FILE: ~/.ssh/config
+================================================================================
+
+# Personal GitHub
+Host github.com-personal
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_personal
+  IdentitiesOnly yes
+Host github.com-company
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa
+  IdentitiesOnly yes
+Host github.com-jfa
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+Host github.com-nexpos
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_github
+  AddKeysToAgent yes
+Host github.com-xanhsm
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_xanhsm
+  AddKeysToAgent yes
+Host github.com-tangduchopee
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_tangduchopee
+  IdentitiesOnly yes
+Host github.com-mthuyhopee
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_mthuyhopee
+  IdentitiesOnly yes
