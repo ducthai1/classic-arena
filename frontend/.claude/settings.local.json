@@ -6,7 +6,12 @@
       "Bash(ls:*)",
       "Bash(npm run type-check:*)",
       "Bash(python:*)",
-      "Bash(git -C /Users/admin/Downloads/caro-hopee/frontend log --oneline --since=\"7 days ago\" --name-status)"
+      "Bash(git -C /Users/admin/Downloads/caro-hopee/frontend log --oneline --since=\"7 days ago\" --name-status)",
+      "Bash(awk {print NF}:*)",
+      "Bash(echo:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)"
     ]
   }
 }

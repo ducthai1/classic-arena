@@ -36,8 +36,6 @@ backend/.mvn/
 coverage/
 .nyc_output/
 
-/.claude/
-
 /plans/
 answer.md
 error.md
