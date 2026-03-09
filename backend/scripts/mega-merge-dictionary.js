@@ -414,23 +414,23 @@ function main() {
   console.log('📥 Phase 2: Loading external sources...\n');
   
   // Source 1: Hồ Ngọc Đức dictionary (JSON lines format)
-  console.log('  [1/12] Hồ Ngọc Đức dictionary');
+  console.log('  [1/13] Hồ Ngọc Đức dictionary');
   processJsonLinesFile(path.join(SOURCES_DIR, 'hongocduc-words.txt'), wordSet, 'hongocduc');
   
   // Source 2: Tudientv dictionary (JSON lines format)
-  console.log('  [2/12] Tudientv dictionary');
+  console.log('  [2/13] Tudientv dictionary');
   processJsonLinesFile(path.join(SOURCES_DIR, 'tudientv-words.txt'), wordSet, 'tudientv');
   
   // Source 3: Wiktionary (JSON lines format)
-  console.log('  [3/12] Wiktionary');
+  console.log('  [3/13] Wiktionary');
   processJsonLinesFile(path.join(SOURCES_DIR, 'wiktionary-words.txt'), wordSet, 'wiktionary');
   
   // Source 4: Duyet Viet74K (plain text)
-  console.log('  [4/12] Duyet Viet74K');
+  console.log('  [4/13] Duyet Viet74K');
   processPlainTextFile(path.join(SOURCES_DIR, 'Viet74K.txt'), wordSet, 'Viet74K');
   
   // Source 5: Winston Lee dictionaries
-  console.log('  [5/12] Winston Lee dictionaries');
+  console.log('  [5/13] Winston Lee dictionaries');
   processPlainTextFile(path.join(SOURCES_DIR, 'tudien-main.txt'), wordSet, 'tudien-main');
   processPlainTextFile(path.join(SOURCES_DIR, 'tudien-danhtu.txt'), wordSet, 'danhtu');
   processPlainTextFile(path.join(SOURCES_DIR, 'tudien-dongtu.txt'), wordSet, 'dongtu');
@@ -440,29 +440,29 @@ function main() {
   processPlainTextFile(path.join(SOURCES_DIR, 'tudien-danhtunhanxung.txt'), wordSet, 'danhtunhanxung');
   
   // Source 6: Tagged dictionaries
-  console.log('  [6/12] Tagged dictionaries');
+  console.log('  [6/13] Tagged dictionaries');
   processTaggedFile(path.join(SOURCES_DIR, 'tudien-tagged1.txt'), wordSet, 'tagged-1');
   processTaggedFile(path.join(SOURCES_DIR, 'tudien-tagged2.txt'), wordSet, 'tagged-2');
   processTaggedFile(path.join(SOURCES_DIR, 'tudien-ast.txt'), wordSet, 'tudien-ast');
   
   // Source 7: Vietnamese syllable lists
-  console.log('  [7/12] Vietnamese syllable lists');
+  console.log('  [7/13] Vietnamese syllable lists');
   processSyllableFile(path.join(SOURCES_DIR, 'all-syllables-2022.txt'), wordSet, 'all-syllables-2022');
   processSyllableFile(path.join(SOURCES_DIR, 'hieuthi-all-syllables.txt'), wordSet, 'hieuthi-all-syllables');
   processSyllableFile(path.join(SOURCES_DIR, 'vn-syllable-6674.txt'), wordSet, 'vn-syllable-6674');
   processSyllableFile(path.join(SOURCES_DIR, 'vn-syllable-7884.txt'), wordSet, 'vn-syllable-7884');
   
   // Source 8: Pyvi NLP toolkit dictionary
-  console.log('  [8/12] Pyvi NLP toolkit words');
+  console.log('  [8/13] Pyvi NLP toolkit words');
   processPlainTextFile(path.join(SOURCES_DIR, 'pyvi-words.txt'), wordSet, 'pyvi-words');
   
   // Source 9: VinAI Research Vietnamese dictionary
-  console.log('  [9/12] VinAI Research dictionaries');
+  console.log('  [9/13] VinAI Research dictionaries');
   processPlainTextFile(path.join(SOURCES_DIR, 'vinai-vn-dictionary.txt'), wordSet, 'vinai-vn-dict');
   processPlainTextFile(path.join(SOURCES_DIR, 'vinai-dictionary.txt'), wordSet, 'vinai-dict');
   
   // Source 10: Previous duyet-wordlist
-  console.log('  [10/12] Previous duyet-wordlist');
+  console.log('  [10/13] Previous duyet-wordlist');
   const duyetPath = path.join(__dirname, '../src/data/duyet-wordlist.txt');
   if (fs.existsSync(duyetPath)) {
     processPlainTextFile(duyetPath, wordSet, 'duyet-wordlist');
@@ -471,7 +471,7 @@ function main() {
   }
   
   // Source 11: Extracted Social Slang (UIT-VSFC)
-  console.log('  [11/12] Extracted Social Slang (UIT-VSFC)');
+  console.log('  [11/13] Extracted Social Slang (UIT-VSFC)');
   const slangPath = path.join(SOURCES_DIR, 'social-slang-candidates.txt');
   if (fs.existsSync(slangPath)) {
     processPlainTextFile(slangPath, wordSet, 'social-slang');
@@ -479,8 +479,45 @@ function main() {
     console.log('  ⚠ social-slang-candidates.txt not found (skipping)');
   }
   
+  // Source 12: Wiktionary Crawled (comprehensive — from crawl-wiktionary-vi.js)
+  console.log('  [12/13] Wiktionary Crawled (comprehensive)');
+  const wiktionaryCrawledPath = path.join(SOURCES_DIR, 'wiktionary-crawled.txt');
+  if (fs.existsSync(wiktionaryCrawledPath)) {
+    processPlainTextFile(wiktionaryCrawledPath, wordSet, 'wiktionary-crawled');
+  } else {
+    console.log('  ⚠ wiktionary-crawled.txt not found (run crawl-wiktionary-vi.js first)');
+  }
+
   console.log(`\n  Total from all sources: ${wordSet.size} unique words\n`);
-  
+
+  // ===== Load frequency data for quality filtering (from build-frequency-corpus.js) =====
+  const FREQ_PATH = path.join(SOURCES_DIR, 'wikipedia-frequency.json');
+  let bigramFreq = null;
+  let unigramFreq = null;
+  if (fs.existsSync(FREQ_PATH)) {
+    try {
+      const freqData = JSON.parse(fs.readFileSync(FREQ_PATH, 'utf8'));
+      bigramFreq = freqData.bigrams || {};
+      unigramFreq = freqData.unigrams || {};
+      console.log(`  📊 Loaded frequency corpus: ${Object.keys(bigramFreq).length} bigrams, ${Object.keys(unigramFreq).length} unigrams`);
+    } catch (e) {
+      console.log(`  ⚠ Failed to load frequency data: ${e.message}`);
+    }
+  }
+
+  // ===== Load LLM blacklist (from validate-dictionary-llm.js) =====
+  const BLACKLIST_REPORT_PATH = path.join(__dirname, 'validation-report.json');
+  let llmBlacklist = new Set();
+  if (fs.existsSync(BLACKLIST_REPORT_PATH)) {
+    try {
+      const report = JSON.parse(fs.readFileSync(BLACKLIST_REPORT_PATH, 'utf8'));
+      llmBlacklist = new Set(report.removedWords || []);
+      console.log(`  🚫 Loaded LLM blacklist: ${llmBlacklist.size} words to exclude from generation`);
+    } catch (e) {
+      console.log(`  ⚠ Failed to load LLM blacklist: ${e.message}`);
+    }
+  }
+
   // ===== Phase 3: Generate compound words for gameplay diversity =====
   console.log('📝 Phase 3: Generating compound words using productive Vietnamese morphemes...\n');
   
@@ -499,45 +536,138 @@ function main() {
     }
   }
   
-  // Productive Sino-Vietnamese prefixes (known to combine with many words)
+  // Productive Sino-Vietnamese prefixes — ONLY genuine morphological prefixes
+  // that form real compound words. Verbs, adverbs, quantifiers REMOVED
+  // (they generated nonsense like "ăn mười", "đang tóc", "ngủ xuyên")
   const PRODUCTIVE_PREFIXES = [
-    'bất', 'vô', 'phi', 'phản', 'đại', 'tiểu', 'siêu', 'tái',
-    'đa', 'đơn', 'tân', 'cổ', 'tổng', 'phó', 'phụ',
-    'bán', 'toàn', 'chính', 'ngoại', 'nội',
-    'hậu', 'tiền', 'trung', 'thượng', 'hạ', 'cao', 'thấp',
-    'cựu', 'tự', 'liên', 'đồng', 'hợp',
-    'sơ', 'trùng', 'cộng', 'biệt', 'đặc', 'chuyên',
-    'triệt', 'tuyệt', 'cực', 'tối', 'thật',
-    'không', 'chẳng', 'chưa', 'đang', 'đã', 'sẽ',
-    'rất', 'quá', 'hơi', 'khá', 'cùng', 'mỗi',
-    'từng', 'mọi', 'các', 'những', 'nhiều', 'ít',
-    'làm', 'đi', 'chạy', 'bay', 'nói', 'viết', 'đọc',
-    'nghe', 'nhìn', 'xem', 'ăn', 'uống', 'ngủ', 'thức',
-    'mua', 'cho', 'lấy', 'đưa', 'nhận',
-    'gọi', 'hỏi', 'trả', 'giải', 'tìm', 'kiếm',
-    'dạy', 'học', 'thi', 'chơi', 'đánh', 'cắt', 'xây',
-    'sửa', 'chữa', 'phá', 'dựng', 'tạo', 'sinh',
+    // Negation / privative prefixes (Sino-Vietnamese)
+    'bất', 'vô', 'phi', 'phản', 'vị',
+    // Size / degree prefixes
+    'đại', 'tiểu', 'siêu', 'cực', 'tối',
+    // Temporal / order prefixes
+    'tái', 'tân', 'cổ', 'cựu', 'hậu', 'tiền', 'sơ',
+    // Position / scope prefixes
+    'tổng', 'phó', 'phụ', 'ngoại', 'nội', 'trung',
+    'thượng', 'hạ', 'bán', 'toàn', 'chính',
+    // Quantity prefixes
+    'đa', 'đơn', 'song', 'tam', 'đồng', 'liên', 'hợp',
+    // Quality / characteristic prefixes
+    'đặc', 'chuyên', 'biệt', 'triệt', 'tuyệt',
+    // Other genuine morphological prefixes
+    'tự', 'cộng', 'trùng',
   ];
-  
-  // Productive suffixes (known to combine with many words)
+
+  // Productive suffixes — ONLY genuine morphological suffixes
+  // that form real compound words. Random adjectives REMOVED
   const PRODUCTIVE_SUFFIXES = [
+    // Academic / discipline suffixes
     'hóa', 'tính', 'lý', 'học', 'thuật', 'pháp',
+    // Person / role suffixes
     'viên', 'gia', 'sĩ', 'nhân', 'sinh', 'chủ',
-    'phẩm', 'vật', 'liệu', 'chất', 'thể', 'giới',
-    'đoàn', 'hội', 'đội', 'nhóm', 'ban', 'bộ',
+    // Object / material suffixes
+    'phẩm', 'vật', 'liệu', 'chất', 'thể',
+    // Organization / place suffixes
+    'đoàn', 'hội', 'đội', 'ban', 'bộ',
     'trường', 'viện', 'xưởng', 'phòng', 'sở', 'cục',
-    'quyền', 'luật', 'lệnh', 'nghĩa', 'thuyết',
-    'cảnh', 'hình', 'dạng', 'kiểu', 'mẫu', 'loại',
+    // Abstract concept suffixes
+    'quyền', 'luật', 'lệnh', 'nghĩa', 'thuyết', 'giới',
+    // Form / type suffixes
+    'hình', 'dạng', 'loại',
+    // Science / force suffixes
     'lực', 'năng', 'khí', 'điện', 'nhiệt', 'quang',
-    'mạnh', 'yếu', 'giỏi', 'kém', 'tốt', 'xấu',
-    'đẹp', 'lớn', 'nhỏ', 'dài', 'ngắn',
-    'rộng', 'hẹp', 'sâu', 'nông',
-    'nhanh', 'chậm', 'nóng', 'lạnh', 'ấm', 'mát',
-    'sáng', 'tối', 'trắng', 'đen', 'đỏ', 'xanh',
   ];
   
-  // Get confirmed syllables appearing as suffix/prefix in 10+ existing words
-  const MIN_PARTNER_COUNT = 10;
+  // Common Vietnamese words that should NEVER be used as generated second syllables
+  // They appear frequently but don't form real compounds with Sino-Vietnamese prefixes
+  const SECOND_SYLLABLE_BLACKLIST = new Set([
+    // Pronouns / determiners / particles
+    'này', 'đó', 'kia', 'nào', 'ấy', 'đây', 'đấy',
+    'tôi', 'bạn', 'nó', 'họ', 'mình', 'ta', 'chúng',
+    // Conjunctions / prepositions / adverbs
+    'và', 'nhưng', 'hay', 'hoặc', 'mà', 'thì', 'nên', 'vì', 'nếu',
+    'của', 'cho', 'với', 'từ', 'đến', 'về', 'trong', 'ngoài', 'trên', 'dưới',
+    'đã', 'đang', 'sẽ', 'vẫn', 'còn', 'không', 'chưa', 'được', 'bị', 'phải',
+    'rất', 'lắm', 'quá', 'hơi', 'khá', 'cũng', 'luôn', 'chỉ',
+    // Time / position words (not morphological)
+    'sau', 'trước', 'lúc', 'khi', 'ngày', 'đêm', 'sáng', 'tối', 'chiều',
+    // Common verbs that don't form compounds as suffixes
+    'làm', 'đi', 'đến', 'lên', 'xuống', 'ra', 'vào',
+    'ăn', 'uống', 'ngủ', 'chạy', 'bay', 'bơi',
+    'nói', 'nghe', 'thấy', 'biết', 'hiểu', 'muốn', 'cần',
+    'có', 'là', 'ở', 'hết', 'xong', 'rồi',
+    // Common nouns that don't compound with Sino-Vietnamese prefixes
+    'nhà', 'cửa', 'đường', 'xe', 'tàu', 'máy',
+    'con', 'cái', 'chiếc', 'bức', 'tấm',
+    'ông', 'bà', 'anh', 'chị', 'em', 'cô', 'chú', 'bác',
+    'cơm', 'nước', 'gạo', 'thịt', 'cá', 'rau',
+    'mắt', 'tai', 'mũi', 'miệng', 'tóc', 'tay', 'chân', 'đầu', 'bụng', 'ruột',
+    'trời', 'đất', 'mưa', 'gió', 'nắng', 'lửa',
+    // Common adjectives that don't compound meaningfully
+    'tốt', 'xấu', 'đẹp', 'cao', 'thấp', 'dài', 'ngắn',
+    'to', 'nhỏ', 'lớn', 'béo', 'gầy', 'nặng', 'nhẹ',
+    'nóng', 'lạnh', 'ấm', 'mát', 'khô', 'ướt',
+    'mới', 'cũ', 'trẻ', 'già', 'sớm', 'muộn',
+    'dễ', 'khó', 'nhanh', 'chậm', 'xa', 'gần',
+    // Colors
+    'xanh', 'đỏ', 'trắng', 'đen', 'tím', 'hồng', 'nâu', 'xám',
+    // Misc common words
+    'lá', 'hoa', 'cây', 'đá', 'sắt', 'vàng', 'bạc',
+    'chuyện', 'việc', 'lời', 'câu', 'bài',
+    'tiền', 'bóng', 'giờ', 'lợi', 'kim', 'thực',
+    'hơn', 'nhất', 'lắm', 'thêm', 'nữa', 'nhiều', 'ít',
+    'sách', 'thư', 'ảnh',
+    'hàng', 'thức', 'cánh', 'hùng',
+    'dương', 'thu', 'loạn', 'hành',
+    // More function words as suffixes
+    'lại', 'đi', 'ra', 'vào', 'lên', 'xuống',
+    'giả', 'thường', 'báo', 'tin',
+    'thuốc', 'gà', 'bút', 'ngọc', 'thú',
+    'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười',
+    // More body parts / animals / common nouns
+    'răng', 'mồm', 'bông', 'bò', 'sức', 'màu', 'xác',
+    'nợ', 'bước', 'theo', 'bỏ', 'sao', 'chừng', 'các',
+    'ma', 'mững', 'khê', 'nhận',
+    // More common words that don't form Sino-Vietnamese compounds
+    'lông', 'máu', 'dạy', 'sống', 'cả', 'lớp', 'mã',
+  ]);
+
+  // Common first syllables that shouldn't be used as generated prefixes
+  // These are standalone Vietnamese words that don't form Sino-Vietnamese compounds
+  const FIRST_SYLLABLE_BLACKLIST = new Set([
+    // Common verbs
+    'ăn', 'uống', 'ngủ', 'chạy', 'bay', 'bơi', 'đi', 'đến',
+    'làm', 'nói', 'nghe', 'thấy', 'biết', 'hiểu', 'muốn', 'cần',
+    'mang', 'mặc', 'đánh', 'đổi', 'để', 'lên', 'ra', 'vào',
+    'gây', 'khai', 'gọi', 'giải', 'xây', 'chuyển', 'bổ',
+    'chiếu', 'kéo', 'đẩy', 'bắn', 'cắt', 'xé', 'nấu', 'rửa',
+    // Common adjectives / colors
+    'đau', 'dễ', 'khó', 'béo', 'gầy', 'xanh', 'đỏ', 'vàng',
+    'trắng', 'đen', 'tím', 'hồng', 'nâu', 'xám',
+    // Animals / food / plants
+    'gà', 'vịt', 'bò', 'heo', 'cá', 'chó', 'mèo', 'ngựa',
+    'cà', 'tơ', 'lúa', 'bắp', 'khoai', 'đậu',
+    // Particles / adverbs / prepositions
+    'và', 'hay', 'nhưng', 'mà', 'thì', 'phải', 'hơi',
+    'với', 'bởi', 'tại', 'cho', 'từ', 'về',
+    // Body parts
+    'mắt', 'tai', 'mũi', 'tay', 'chân', 'đầu', 'lưng',
+    // Common nouns
+    'áo', 'giày', 'mũ', 'nón', 'túi', 'ghế', 'bàn',
+    'nhà', 'cửa', 'sông', 'núi', 'biển', 'rừng',
+    'xe', 'ống', 'dầu', 'da', 'trà', 'giá',
+    // More verbs
+    'hỏi', 'mắc', 'đóng', 'mở', 'đặt', 'bắt', 'gặp',
+    'treo', 'trống', 'đuổi', 'kêu', 'khóc', 'cười',
+    // Determiners / quantifiers / particles (as prefixes)
+    'này', 'đó', 'kia', 'nào', 'những', 'các', 'mọi', 'mỗi',
+    'quá', 'rất', 'hơi', 'khá', 'cũng',
+    // Adverbs
+    'đã', 'đang', 'sẽ', 'vẫn', 'còn', 'không', 'chưa',
+  ]);
+
+  // Get confirmed syllables appearing as prefix/suffix in many existing words
+  // Raised from 10 to 30 — ensures only truly productive syllables used
+  const MIN_PARTNER_COUNT = 30;
   const confirmedSuffixes = new Set();
   const confirmedPrefixes = new Set();
   
@@ -553,7 +683,7 @@ function main() {
   
   let newWords = 0;
   const newWordsBatch = [];
-  const MAX_NEW_WORDS = 120000;
+  const MAX_NEW_WORDS = 80000; // Reduced from 120K — quality over quantity
   
   // Strategy 1: Productive prefixes × confirmed suffixes
   let s1Count = 0;
@@ -561,8 +691,14 @@ function main() {
     for (const suffix of confirmedSuffixes) {
       if (newWords >= MAX_NEW_WORDS) break;
       if (prefix === suffix) continue;
+      if (SECOND_SYLLABLE_BLACKLIST.has(suffix)) continue;
       const compound = prefix + ' ' + suffix;
-      if (!wordSet.has(compound) && isValidVietnameseWord(compound)) {
+      if (!wordSet.has(compound) && !llmBlacklist.has(compound) && isValidVietnameseWord(compound)) {
+        if (bigramFreq && unigramFreq) {
+          const pFreq = unigramFreq[prefix] || 0;
+          const sFreq = unigramFreq[suffix] || 0;
+          if (pFreq < 5 && sFreq < 5 && !bigramFreq[compound]) continue;
+        }
         newWordsBatch.push(compound);
         newWords++;
         s1Count++;
@@ -570,15 +706,42 @@ function main() {
     }
   }
   console.log(`  Strategy 1 (productive prefix × confirmed suffix): ${s1Count.toLocaleString()} words`);
-  
-  // Strategy 2: Confirmed prefixes × productive suffixes
+
+  // Strategy 2: Sino-Vietnamese morpheme prefixes × productive suffixes
+  // Only allow prefixes that are known Sino-Vietnamese morphemes (not random Vietnamese words)
+  const SINO_VIET_MORPHEMES = new Set([
+    // From PRODUCTIVE_PREFIXES (already used in Strategy 1)
+    ...PRODUCTIVE_PREFIXES,
+    // Additional Sino-Vietnamese morphemes that commonly form compounds
+    'ác', 'an', 'bá', 'bạch', 'bách', 'bảo', 'bi', 'binh', 'bình',
+    'cải', 'cảnh', 'cầu', 'chi', 'chiến', 'chính', 'chung', 'chúng',
+    'công', 'cung', 'cường', 'dân', 'danh', 'di', 'dị', 'diệu',
+    'du', 'dược', 'đạo', 'đế', 'điện', 'định', 'đức',
+    'giáo', 'giao', 'hải', 'hán', 'hạnh', 'hòa', 'hoàng', 'hồng',
+    'hùng', 'hương', 'hưng', 'khoa', 'không', 'kiến', 'kinh', 'kim',
+    'kỹ', 'lâm', 'lập', 'lệ', 'linh', 'long', 'luân', 'lương',
+    'mật', 'minh', 'mỹ', 'nam', 'ngọc', 'nguyên', 'nhân', 'nhạc',
+    'nông', 'phong', 'phú', 'phúc', 'phương', 'quân', 'quang', 'quốc',
+    'quy', 'sĩ', 'sơn', 'tài', 'tâm', 'tây', 'thái', 'thần',
+    'thất', 'thế', 'thiên', 'thiện', 'thọ', 'thời', 'thủ', 'thương',
+    'tiến', 'tinh', 'tín', 'trí', 'trị', 'triều', 'truyền', 'tư',
+    'từ', 'tương', 'tướng', 'vạn', 'văn', 'vi', 'viễn', 'việt',
+    'vĩnh', 'vũ', 'vương', 'xuân', 'y',
+  ]);
+
   let s2Count = 0;
   for (const prefix of confirmedPrefixes) {
+    if (!SINO_VIET_MORPHEMES.has(prefix)) continue;
     for (const suffix of PRODUCTIVE_SUFFIXES) {
       if (newWords >= MAX_NEW_WORDS) break;
       if (prefix === suffix) continue;
       const compound = prefix + ' ' + suffix;
-      if (!wordSet.has(compound) && isValidVietnameseWord(compound)) {
+      if (!wordSet.has(compound) && !llmBlacklist.has(compound) && isValidVietnameseWord(compound)) {
+        if (bigramFreq && unigramFreq) {
+          const pFreq = unigramFreq[prefix] || 0;
+          const sFreq = unigramFreq[suffix] || 0;
+          if (pFreq < 5 && sFreq < 5 && !bigramFreq[compound]) continue;
+        }
         newWordsBatch.push(compound);
         newWords++;
         s2Count++;
@@ -586,31 +749,11 @@ function main() {
     }
   }
   console.log(`  Strategy 2 (confirmed prefix × productive suffix): ${s2Count.toLocaleString()} words`);
-  
-  // Strategy 3: High-frequency prefix (20+) × high-frequency suffix (20+)
+
+  // Strategy 3: DISABLED — data-driven prefix × suffix produced too much noise
+  // (e.g. "béo chủ", "hồng của"). Only curated prefix/suffix lists are reliable.
   let s3Count = 0;
-  const highFreqPrefixes = [];
-  const highFreqSuffixes = [];
-  for (const [prefix, suffixes] of prefixToSuffixes) {
-    if (suffixes.size >= 20) highFreqPrefixes.push(prefix);
-  }
-  for (const [suffix, prefixes] of suffixToPrefixes) {
-    if (prefixes.size >= 20) highFreqSuffixes.push(suffix);
-  }
-  
-  for (const prefix of highFreqPrefixes) {
-    for (const suffix of highFreqSuffixes) {
-      if (newWords >= MAX_NEW_WORDS) break;
-      if (prefix === suffix) continue;
-      const compound = prefix + ' ' + suffix;
-      if (!wordSet.has(compound) && isValidVietnameseWord(compound)) {
-        newWordsBatch.push(compound);
-        newWords++;
-        s3Count++;
-      }
-    }
-  }
-  console.log(`  Strategy 3 (high-freq prefix × high-freq suffix): ${s3Count.toLocaleString()} words`);
+  console.log(`  Strategy 3 (disabled — quality over quantity): ${s3Count} words`);
   
   // Add all new words to Set
   const batchSet = new Set(newWordsBatch);
@@ -623,19 +766,27 @@ function main() {
   
   // ===== Phase 4: Final cleanup =====
   console.log('🧹 Phase 4: Final cleanup and validation...');
-  
+
   const finalWords = [];
   let rejected = 0;
-  
+  let blacklisted = 0;
+
   for (const word of wordSet) {
+    if (llmBlacklist.has(word)) {
+      blacklisted++;
+      continue;
+    }
     if (isValidVietnameseWord(word)) {
       finalWords.push(word);
     } else {
       rejected++;
     }
   }
-  
+
   console.log(`  Rejected ${rejected} words in final validation`);
+  if (blacklisted > 0) {
+    console.log(`  Removed ${blacklisted} words from LLM blacklist`);
+  }
   console.log(`  Final word count: ${finalWords.length.toLocaleString()}\n`);
   
   // ===== Phase 5: Sort and write =====
