@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(git add -A)",
+      "Bash(awk 'END {print \"\"FILES:\"\"NR}')",
+      "Bash(git init)",
+      "Bash(git config user.email \"claude@anthropic.com\")",
+      "Bash(git config user.name \"Claude\")",
+      "Bash(grep:*)",
+      "Bash(git remote:*)",
+      "Bash(git:*)",
+      "Bash(~/switch.sh personal:*)",
+      "Read(//Users/admin/**)",
+      "Bash(~/switch-git.sh personal:*)",
+      "Bash(echo:*)",
+      "Bash(node:*)",
+      "Bash(for plan in /Users/admin/Downloads/caro-hopee/plans/260209-0115-word-chain-game/plan.md /Users/admin/Downloads/caro-hopee/plans/260214-tinh-tuy-dai-chien/plan.md /Users/admin/Downloads/caro-hopee/plans/2025-12-21-performance-optimization/plan.md /Users/admin/Downloads/caro-hopee/frontend/plans/260309-1317-dictionary-improvement/plan.md /Users/admin/Downloads/caro-hopee/frontend/plans/20260122-phase1-profile/plan.md)",
+      "Bash(do echo \"=== $plan ===\")",
+      "Read(//Users/admin/Downloads/caro-hopee/**)",
+      "Bash(done)",
+      "Bash(rm:*)",
+      "Bash(find .claude:*)"
+    ]
+  }
+}
