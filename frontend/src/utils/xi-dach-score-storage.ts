@@ -359,7 +359,7 @@ export const createPlayerResult = (
 
 /**
  * Calculate settlement (who pays whom)
- * Uses greedy algorithm to minimize transactions
+ * Uses exact-match prioritization + greedy algorithm to minimize transactions
  */
 export const calculateSettlement = (session: XiDachSession): XiDachSettlement[] => {
   const settlements: XiDachSettlement[] = [];
@@ -375,37 +375,57 @@ export const calculateSettlement = (session: XiDachSession): XiDachSettlement[] 
   // Separate winners (positive) and losers (negative)
   const winners = balances
     .filter((b) => b.balance > 0)
-    .map((b) => ({ ...b }))
-    .sort((a, b) => b.balance - a.balance);
+    .map((b) => ({ ...b }));
 
   const losers = balances
     .filter((b) => b.balance < 0)
-    .map((b) => ({ ...b, balance: Math.abs(b.balance) }))
+    .map((b) => ({ ...b, balance: Math.abs(b.balance) }));
+
+  // Step 1: Exact match — prioritize pairs with equal amounts to minimize transactions
+  for (let li = 0; li < losers.length; li++) {
+    if (losers[li].balance === 0) continue;
+    for (let wi = 0; wi < winners.length; wi++) {
+      if (winners[wi].balance === 0) continue;
+      if (losers[li].balance === winners[wi].balance) {
+        settlements.push({
+          fromPlayerId: losers[li].id,
+          toPlayerId: winners[wi].id,
+          amount: losers[li].balance,
+        });
+        losers[li].balance = 0;
+        winners[wi].balance = 0;
+        break;
+      }
+    }
+  }
+
+  // Step 2: Greedy matching for remaining balances
+  const remainingLosers = losers
+    .filter((l) => l.balance > 0)
+    .sort((a, b) => b.balance - a.balance);
+  const remainingWinners = winners
+    .filter((w) => w.balance > 0)
     .sort((a, b) => b.balance - a.balance);
 
-  // Greedy matching
   let i = 0;
   let j = 0;
 
-  while (i < losers.length && j < winners.length) {
-    const loser = losers[i];
-    const winner = winners[j];
-
-    const amount = Math.min(loser.balance, winner.balance);
+  while (i < remainingLosers.length && j < remainingWinners.length) {
+    const amount = Math.min(remainingLosers[i].balance, remainingWinners[j].balance);
 
     if (amount > 0) {
       settlements.push({
-        fromPlayerId: loser.id,
-        toPlayerId: winner.id,
+        fromPlayerId: remainingLosers[i].id,
+        toPlayerId: remainingWinners[j].id,
         amount,
       });
     }
 
-    loser.balance -= amount;
-    winner.balance -= amount;
+    remainingLosers[i].balance -= amount;
+    remainingWinners[j].balance -= amount;
 
-    if (loser.balance === 0) i++;
-    if (winner.balance === 0) j++;
+    if (remainingLosers[i].balance === 0) i++;
+    if (remainingWinners[j].balance === 0) j++;
   }
 
   return settlements;
