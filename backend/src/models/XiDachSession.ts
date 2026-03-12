@@ -35,6 +35,7 @@ export interface IXiDachMatch {
   dealerId: string;
   results: IXiDachPlayerResult[];
   timestamp: string;
+  durationMs?: number;
   editedAt?: string;
 }
 
@@ -61,6 +62,8 @@ export interface IXiDachSession extends Document {
   status: XiDachSessionStatus;
   version: number;
   createdAt: Date;
+  startedAt?: Date;
+  endedAt?: Date;
   updatedAt: Date;
 }
 
@@ -95,6 +98,7 @@ const XiDachMatchSchema: Schema = new Schema({
   dealerId: { type: String, required: true },
   results: { type: [XiDachPlayerResultSchema], default: [] },
   timestamp: { type: String, required: true },
+  durationMs: { type: Number, default: null },
   editedAt: { type: String, default: null },
 }, { _id: false });
 
@@ -175,6 +179,14 @@ const XiDachSessionSchema: Schema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  startedAt: {
+    type: Date,
+    default: null,
+  },
+  endedAt: {
+    type: Date,
+    default: null,
   },
   updatedAt: {
     type: Date,

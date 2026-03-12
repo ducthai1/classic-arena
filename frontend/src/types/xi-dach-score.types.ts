@@ -52,6 +52,7 @@ export interface XiDachMatch {
   dealerId: string;                   // Dealer for this match
   results: XiDachPlayerResult[];
   timestamp: string;                  // ISO string
+  durationMs?: number;                // Duration in milliseconds
   editedAt?: string;                  // ISO string if edited
 }
 
@@ -89,6 +90,8 @@ export interface XiDachSession {
   status: XiDachSessionStatus;
   version?: number;                   // Optimistic locking version
   createdAt: string;                  // ISO string
+  startedAt?: string;                 // ISO string
+  endedAt?: string;                   // ISO string
   updatedAt: string;                  // ISO string
 }
 

@@ -370,6 +370,8 @@ export interface XiDachSessionResponse {
   status: 'setup' | 'playing' | 'paused' | 'ended';
   version: number;
   createdAt: string;
+  startedAt?: string;
+  endedAt?: string;
   updatedAt: string;
 }
 

@@ -93,6 +93,27 @@ const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
   onUndo,
   t,
 }) => {
+  const formatMatchTime = (timestamp: string, durationMs?: number) => {
+    const end = new Date(timestamp);
+    let startStr = '';
+    
+    // Only calculate start time if durationMs exists and is reasonable (< 24hrs)
+    if (durationMs && durationMs > 0 && durationMs < 86400000) {
+      const start = new Date(end.getTime() - durationMs);
+      startStr = start.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ';
+    }
+    
+    const endStr = end.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    return `${startStr}${endStr}`;
+  };
+
+  const formatMatchDuration = (durationMs?: number) => {
+    if (!durationMs || durationMs <= 0) return '';
+    const minutes = Math.ceil(durationMs / 60000); // Round up to nearest minute
+    if (minutes < 1) return '< 1 phút';
+    return `${minutes} phút`;
+  };
+
   const dealer = players.find((p) => p.id === match.dealerId);
 
   return (
@@ -132,9 +153,19 @@ const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
               />
             )}
           </Box>
-          <Typography variant="caption" sx={{ color: '#95a5a6' }}>
+          <Typography variant="caption" sx={{ color: '#95a5a6', display: 'block' }}>
             {t('xiDachScore.dealer.label')}: 👑 {dealer?.name || 'N/A'}
           </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+            <Typography variant="caption" sx={{ color: '#7f8c8d', bgcolor: '#f5f6fa', px: 1, py: 0.2, borderRadius: 1 }}>
+              ⏰ {formatMatchTime(match.timestamp, match.durationMs)}
+            </Typography>
+            {match.durationMs && match.durationMs > 0 && (
+              <Typography variant="caption" sx={{ color: '#7f8c8d', bgcolor: '#f5f6fa', px: 1, py: 0.2, borderRadius: 1 }}>
+                ⏱️ {formatMatchDuration(match.durationMs)}
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         {/* Action Buttons - Only for last match */}

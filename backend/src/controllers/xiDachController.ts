@@ -105,6 +105,8 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
       status: session.status,
       version: session.version,
       createdAt: session.createdAt.toISOString(),
+      startedAt: session.startedAt?.toISOString(),
+      endedAt: session.endedAt?.toISOString(),
       updatedAt: session.updatedAt.toISOString(),
     });
   } catch (error: any) {
@@ -163,6 +165,8 @@ export const getSession = async (req: Request, res: Response): Promise<void> => 
       status: session.status,
       version: session.version,
       createdAt: session.createdAt.toISOString(),
+      startedAt: session.startedAt?.toISOString(),
+      endedAt: session.endedAt?.toISOString(),
       updatedAt: session.updatedAt.toISOString(),
     });
   } catch (error: any) {
@@ -220,6 +224,8 @@ export const joinSession = async (req: Request, res: Response): Promise<void> =>
       status: session.status,
       version: session.version,
       createdAt: session.createdAt.toISOString(),
+      startedAt: session.startedAt?.toISOString(),
+      endedAt: session.endedAt?.toISOString(),
       updatedAt: session.updatedAt.toISOString(),
     });
   } catch (error: any) {
@@ -245,6 +251,8 @@ export const updateSession = async (req: Request, res: Response): Promise<void> 
       'currentDealerId',
       'settings',
       'status',
+      'startedAt',
+      'endedAt',
     ];
 
     const updateData: Record<string, any> = {};
@@ -315,6 +323,8 @@ export const updateSession = async (req: Request, res: Response): Promise<void> 
       status: session.status,
       version: session.version,
       createdAt: session.createdAt.toISOString(),
+      startedAt: session.startedAt?.toISOString(),
+      endedAt: session.endedAt?.toISOString(),
       updatedAt: session.updatedAt.toISOString(),
     });
   } catch (error: any) {

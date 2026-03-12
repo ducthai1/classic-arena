@@ -95,7 +95,32 @@ const SessionSummary: React.FC = () => {
   }
 
   const matchCount = currentSession.matches.length;
-  const duration = formatDuration(currentSession.createdAt, currentSession.updatedAt, t);
+
+  // Helper to get formatted start/end time
+  const formatTime = (isoString?: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getSessionDuration = () => {
+    const defaultDuration = formatDuration(currentSession.createdAt, currentSession.updatedAt, t);
+    if (!currentSession.startedAt) return defaultDuration;
+    
+    // For end time: endedAt -> lastMatch.timestamp -> updatedAt
+    let endTime = currentSession.updatedAt;
+    if (currentSession.endedAt) {
+      endTime = currentSession.endedAt;
+    } else if (currentSession.matches.length > 0) {
+      endTime = currentSession.matches[currentSession.matches.length - 1].timestamp;
+    }
+    
+    return formatDuration(currentSession.startedAt, endTime, t);
+  };
+
+  const duration = getSessionDuration();
+  const startTimeStr = formatTime(currentSession.startedAt);
+  const endTimeStr = formatTime(currentSession.endedAt);
 
   // Get player name by ID
   const getPlayerName = (playerId: string): string => {
@@ -135,6 +160,11 @@ const SessionSummary: React.FC = () => {
           <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
             {t('xiDachScore.summary.stats', { count: matchCount, duration })}
           </Typography>
+          {startTimeStr && (
+            <Typography variant="body2" sx={{ color: '#7f8c8d', mt: 0.5 }}>
+              Bắt đầu: {startTimeStr} {endTimeStr ? `- Kết thúc: ${endTimeStr}` : ''}
+            </Typography>
+          )}
         </Box>
 
         {/* Rankings Section */}

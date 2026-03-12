@@ -98,6 +98,7 @@ const apiResponseToSession = (r: XiDachSessionResponse): XiDachSession => ({
     dealerId: m.dealerId,
     results: m.results || [],
     timestamp: m.timestamp || m.createdAt,
+    durationMs: m.durationMs,
     editedAt: m.editedAt,
   })) as XiDachMatch[],
   currentDealerId: r.currentDealerId,
@@ -105,6 +106,8 @@ const apiResponseToSession = (r: XiDachSessionResponse): XiDachSession => ({
   status: r.status,
   version: r.version,
   createdAt: r.createdAt,
+  startedAt: r.startedAt,
+  endedAt: r.endedAt,
   updatedAt: r.updatedAt,
 });
 
@@ -370,7 +373,10 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
       saveTimeoutRef.current = null;
     }
     latestSessionRef.current = null;
-    enqueueSave(session.sessionCode, { status: session.status }, false);
+    const payload: Partial<XiDachSession> = { status: session.status };
+    if (session.startedAt) payload.startedAt = session.startedAt;
+    if (session.endedAt) payload.endedAt = session.endedAt;
+    enqueueSave(session.sessionCode, payload, false);
   }, [enqueueSave]);
 
   // Flush pending saves on unmount — best-effort, no version locking
@@ -607,6 +613,7 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
     const updated = {
       ...currentSession,
       status: 'playing' as const,
+      startedAt: currentSession.startedAt || getTimestamp(),
       updatedAt: getTimestamp(),
     };
     saveStatusOnly(updated); // Only send status change (lightweight)
@@ -644,6 +651,7 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
     const updated = {
       ...currentSession,
       status: 'ended' as const,
+      endedAt: getTimestamp(),
       updatedAt: getTimestamp(),
     };
     saveStatusOnly(updated); // Only send status change (lightweight)
@@ -654,12 +662,24 @@ export const XiDachScoreProvider: React.FC<{ children: React.ReactNode }> = ({
     (results: XiDachPlayerResult[]) => {
       if (!currentSession) return;
 
+      const now = getTimestamp();
+      let durationMs = 0;
+      if (currentSession.matches.length > 0) {
+        const lastMatch = currentSession.matches[currentSession.matches.length - 1];
+        durationMs = new Date(now).getTime() - new Date(lastMatch.timestamp).getTime();
+      } else if (currentSession.startedAt) {
+        durationMs = new Date(now).getTime() - new Date(currentSession.startedAt).getTime();
+      } else {
+        durationMs = new Date(now).getTime() - new Date(currentSession.createdAt).getTime();
+      }
+
       const match: XiDachMatch = {
         id: generateId(),
         matchNumber: currentSession.matches.length + 1,
         dealerId: currentSession.currentDealerId || '',
         results,
-        timestamp: getTimestamp(),
+        timestamp: now,
+        durationMs,
       };
 
       let updated: XiDachSession = {
