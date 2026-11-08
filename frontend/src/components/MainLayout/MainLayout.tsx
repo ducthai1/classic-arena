@@ -11,6 +11,7 @@ import { XiDachScoreProvider, XiDachScoreContent } from '../XiDachScore';
 import { WordChainProvider, WordChainContent } from '../WordChain';
 import { TinhTuyProvider, TinhTuyContent } from '../TinhTuy';
 import { GoProvider, GoContent } from '../Go';
+import { BadmintonContent } from '../Badminton';
 import { MainLayoutProvider, useMainLayout } from './MainLayoutContext';
 import GuestNameDialog from '../GuestNameDialog/GuestNameDialog';
 import { getGuestName } from '../../utils/guestName';
@@ -36,6 +37,7 @@ const MainLayoutInner: React.FC<MainLayoutProps> = ({ children }) => {
     if (location.pathname === '/word-chain') return 'word-chain';
     if (location.pathname === '/tinh-tuy') return 'tinh-tuy';
     if (location.pathname === '/go') return 'go';
+    if (location.pathname === '/badminton') return 'badminton';
     if (location.pathname === '/') return 'caro';
     return 'caro';
   });
@@ -62,6 +64,8 @@ const MainLayoutInner: React.FC<MainLayoutProps> = ({ children }) => {
       setSelectedGame('tinh-tuy');
     } else if (location.pathname === '/go') {
       setSelectedGame('go');
+    } else if (location.pathname === '/badminton') {
+      setSelectedGame('badminton');
     } else if (location.pathname === '/') {
       setSelectedGame('caro');
     }
@@ -87,7 +91,8 @@ const MainLayoutInner: React.FC<MainLayoutProps> = ({ children }) => {
         : gameId === 'word-chain' ? '/word-chain'
           : gameId === 'tinh-tuy' ? '/tinh-tuy'
             : gameId === 'go' ? '/go'
-              : '/';
+              : gameId === 'badminton' ? '/badminton'
+                : '/';
 
     // Skip if already on target route
     if (location.pathname === targetPath) return;
@@ -146,6 +151,8 @@ const MainLayoutInner: React.FC<MainLayoutProps> = ({ children }) => {
             <GoContent />
           </GoProvider>
         );
+      case 'badminton':
+        return <BadmintonContent />;
       case 'caro':
       default:
         return <HomePageContent />;

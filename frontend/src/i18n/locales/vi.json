@@ -92,7 +92,8 @@
     "xiDachScoreDescription": "Theo dõi điểm số xì dách",
     "wordChainDescription": "Nối từ tiếng Việt cùng bạn bè",
     "tinhTuyDescription": "Cờ tỷ phú Việt Nam cùng bạn bè",
-    "goDescription": "Trò chơi chiến thuật cổ điển"
+    "goDescription": "Trò chơi chiến thuật cổ điển",
+    "badmintonDescription": "Game cầu lông 3D vui nhộn với thú cưng trên trình duyệt"
   },
   "games": {
     "luckyWheel": "Vòng Quay May Mắn",
@@ -102,7 +103,8 @@
     "xiDachScore": "Xì Dách Tracker",
     "wordChain": "Nối Từ",
     "tinhTuy": "Tinh Túy Đại Chiến",
-    "go": "Cờ Vây"
+    "go": "Cờ Vây",
+    "badminton": "Cầu Lông 3D (Birdie Bash)"
   },
   "luckyWheel": {
     "spinning": "Đang quay...",

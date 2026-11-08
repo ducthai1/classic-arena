@@ -158,6 +158,10 @@ const router = createBrowserRouter([
     element: <MainLayout />,
   },
   {
+    path: '/badminton',
+    element: <MainLayout />,
+  },
+  {
     path: '/login',
     element: <LoginPage />,
   },

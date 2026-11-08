@@ -92,7 +92,8 @@
     "xiDachScoreDescription": "Track blackjack scores",
     "wordChainDescription": "Vietnamese word chain with friends",
     "tinhTuyDescription": "Vietnamese Monopoly with friends",
-    "goDescription": "Classic strategy board game"
+    "goDescription": "Classic strategy board game",
+    "badmintonDescription": "Cute 3D browser badminton game with animal characters"
   },
   "games": {
     "luckyWheel": "Lucky Wheel",
@@ -102,7 +103,8 @@
     "xiDachScore": "Blackjack Tracker",
     "wordChain": "Word Chain",
     "tinhTuy": "Tinh Tuy Board Game",
-    "go": "Go (Cờ Vây)"
+    "go": "Go (Cờ Vây)",
+    "badminton": "Birdie Bash (3D Badminton)"
   },
   "luckyWheel": {
     "spinning": "Spinning...",

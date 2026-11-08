@@ -85,6 +85,15 @@ export const GAMES: GameItem[] = [
     color: '#2c3e50',
   },
   {
+    id: 'badminton',
+    name: 'games.badminton',
+    icon: '🏸',
+    logo: '/game-logo/badminton.png',
+    description: 'home.badmintonDescription',
+    available: true,
+    color: '#ff8fb0',
+  },
+  {
     id: 'werewolf',
     name: 'games.werewolf',
     icon: '🐺',
